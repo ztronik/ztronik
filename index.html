@@ -66,7 +66,12 @@
 
             <div id="admin-section-poin" class="block">
                 <label class="text-[10px] font-bold text-slate-500 uppercase mb-1 block">ID Member / No. HP</label>
-                <div id="reader-admin" class="mb-4 hidden w-full overflow-hidden border-2 border-emerald-200 rounded-xl"></div>
+                
+                <div id="container-reader-admin" class="hidden relative mb-4">
+                    <button onclick="stopScanner('reader-admin')" class="absolute top-2 right-2 z-10 bg-rose-500 text-white w-8 h-8 rounded-full flex items-center justify-center shadow border-2 border-white transition active:scale-90"><i class="fa-solid fa-xmark"></i></button>
+                    <div id="reader-admin" class="w-full overflow-hidden border-2 border-emerald-200 rounded-xl"></div>
+                </div>
+
                 <div class="flex gap-2 mb-4">
                     <input type="text" id="admin-input-id" placeholder="Scan atau Ketik ID..." class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-medium uppercase text-slate-700 focus:outline-none focus:border-emerald-500">
                     <button class="bg-emerald-500 text-white px-5 rounded-xl shadow-sm transition active:scale-95" onclick="startScannerAdmin()"><i class="fa-solid fa-qrcode text-xl"></i></button>
@@ -167,7 +172,12 @@
                     <button id="btn-mode-list" class="w-1/2 text-slate-500 py-2.5 rounded-xl text-xs font-bold transition" onclick="switchModeMember('list')">Daftar Member</button>
                 </div>
                 <div id="form-input-member">
-                    <div id="reader-edit-member" class="mb-4 hidden w-full overflow-hidden border-2 border-amber-200 rounded-xl"></div>
+                    
+                    <div id="container-reader-edit-member" class="hidden relative mb-4">
+                        <button onclick="stopScanner('reader-edit-member')" class="absolute top-2 right-2 z-10 bg-rose-500 text-white w-8 h-8 rounded-full flex items-center justify-center shadow border-2 border-white transition active:scale-90"><i class="fa-solid fa-xmark"></i></button>
+                        <div id="reader-edit-member" class="w-full overflow-hidden border-2 border-amber-200 rounded-xl"></div>
+                    </div>
+
                     <div class="flex gap-2 mb-4 bg-amber-50 p-2 rounded-xl border border-amber-100">
                         <input type="text" id="edit-search-member" placeholder="ID / HP..." class="w-full px-3 py-2 bg-white border border-amber-200 rounded-lg text-xs uppercase focus:outline-none">
                         <button class="bg-amber-500 text-white px-3 rounded-lg shadow-sm" onclick="startScannerEditMember()" title="Scan QR"><i class="fa-solid fa-camera"></i></button>
@@ -213,7 +223,12 @@
             </div>
 
             <div id="admin-section-riwayat-admin" class="hidden">
-                <div id="reader-history" class="mb-4 hidden w-full overflow-hidden border-2 border-emerald-200 rounded-xl"></div>
+                
+                <div id="container-reader-history" class="hidden relative mb-4">
+                    <button onclick="stopScanner('reader-history')" class="absolute top-2 right-2 z-10 bg-rose-500 text-white w-8 h-8 rounded-full flex items-center justify-center shadow border-2 border-white transition active:scale-90"><i class="fa-solid fa-xmark"></i></button>
+                    <div id="reader-history" class="w-full overflow-hidden border-2 border-emerald-200 rounded-xl"></div>
+                </div>
+
                 <div class="flex gap-2 mb-4 bg-emerald-50 p-2 rounded-xl border border-emerald-100">
                     <input type="text" id="search-riwayat-admin" placeholder="Ketik ID / HP (Kosongkan utk Semua)..." class="w-1/2 px-3 py-2 bg-white border border-emerald-200 rounded-lg text-xs focus:outline-none">
                     <button class="bg-emerald-500 text-white px-3 rounded-lg shadow-sm" onclick="startScannerHistory()" title="Scan QR Riwayat"><i class="fa-solid fa-camera"></i></button>
@@ -275,7 +290,14 @@
                 <div class="bg-slate-50 p-4 rounded-2xl border border-slate-100 shadow-sm">
                     <h4 class="text-xs font-bold text-slate-700 mb-3 uppercase tracking-wider flex items-center gap-2"><i class="fa-solid fa-lock"></i> Akses Admin Utama</h4>
                     <input type="text" id="set-username" placeholder="Username Baru" class="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl text-sm mb-2 focus:outline-none">
-                    <input type="password" id="set-password" placeholder="Password Baru" class="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl text-sm mb-4 focus:outline-none">
+                    
+                    <div class="relative mb-4">
+                        <input type="password" id="set-password" placeholder="Password Baru" class="w-full px-4 py-2.5 pr-10 bg-white border border-slate-200 rounded-xl text-sm focus:outline-none">
+                        <button type="button" onclick="togglePassword('set-password', 'icon-set-password')" class="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-emerald-500">
+                            <i id="icon-set-password" class="fa-solid fa-eye"></i>
+                        </button>
+                    </div>
+
                     <button class="w-full bg-slate-800 text-white py-3 rounded-xl font-bold text-xs shadow-md" onclick="simpanPengaturan('password')">Update Akses</button>
                 </div>
             </div>
@@ -284,7 +306,14 @@
         <div id="form-admin" class="hidden transition-all duration-300">
             <p class="text-sm text-slate-500 mb-3">Login Admin Z-TRONIK</p>
             <input type="text" id="login-user" placeholder="Username" class="w-full px-4 py-3.5 bg-white border border-slate-200 rounded-xl text-sm mb-3 focus:outline-none">
-            <input type="password" id="login-pass" placeholder="Password" class="w-full px-4 py-3.5 bg-white border border-slate-200 rounded-xl text-sm mb-6 focus:outline-none">
+            
+            <div class="relative mb-6">
+                <input type="password" id="login-pass" placeholder="Password" class="w-full px-4 py-3.5 pr-10 bg-white border border-slate-200 rounded-xl text-sm focus:outline-none">
+                <button type="button" onclick="togglePassword('login-pass', 'icon-login-pass')" class="absolute inset-y-0 right-0 pr-4 flex items-center text-slate-400 hover:text-emerald-500">
+                    <i id="icon-login-pass" class="fa-solid fa-eye"></i>
+                </button>
+            </div>
+
             <button id="btn-login" class="w-full bg-slate-800 text-white py-4 rounded-xl font-bold text-sm shadow-xl transition active:scale-95" onclick="loginAdmin()">Masuk Dashboard</button>
             
             <div class="mt-6 flex flex-col items-center gap-1">
@@ -310,7 +339,12 @@
 
         <div id="form-member" class="block transition-all duration-300">
             <p class="text-sm text-slate-500 mb-3">Cek poin atau scan kartu anda</p>
-            <div id="reader" class="mb-4 hidden w-full overflow-hidden border-2 border-emerald-200 rounded-xl"></div>
+            
+            <div id="container-reader" class="hidden relative mb-4">
+                <button onclick="stopScanner('reader')" class="absolute top-2 right-2 z-10 bg-rose-500 text-white w-8 h-8 rounded-full flex items-center justify-center shadow border-2 border-white transition active:scale-90"><i class="fa-solid fa-xmark"></i></button>
+                <div id="reader" class="w-full overflow-hidden border-2 border-emerald-200 rounded-xl"></div>
+            </div>
+
             <div class="relative mb-6">
                 <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-emerald-500"><i class="fa-solid fa-id-card"></i></div>
                 <input type="text" id="input-member-id" placeholder="ID Member / No HP..." class="w-full pl-11 pr-4 py-4 bg-white border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-emerald-500 font-bold uppercase text-slate-700 tracking-wider">
@@ -364,10 +398,10 @@
         let rasioNominalSistem = 1000, rasioPoinSistem = 1;
         let globalHadiah = [], displayedHadiah = [], globalProdukPoin = [], displayedProdukPoin = [], allMembersData = [], currentRiwayatData = [];
         let currentMemberPage = 1, currentHadiahPage = 1, currentProdukPage = 1, currentRiwayatPage = 1;
-        const itemsPerPage = 10, hadiahPerPage = 5, produkPerPage = 5, riwayatPerPage = 10;
         let html5QrCode, html5QrCodeAdmin, html5QrCodeHistory, html5QrCodeEdit;
         let globalRiwayatMode = true;
 
+        const itemsPerPage = 10, hadiahPerPage = 5, produkPerPage = 5, riwayatPerPage = 10;
         let keranjangPoin = [];
 
         // --- SISTEM IDLE TIMEOUT & PENYIMPANAN SESI ---
@@ -401,6 +435,36 @@
             }
         }
         // ----------------------------------------------
+
+        // FITUR BARU: Menampilkan atau menyembunyikan password
+        function togglePassword(inputId, iconId) {
+            const input = document.getElementById(inputId);
+            const icon = document.getElementById(iconId);
+            if (input.type === "password") {
+                input.type = "text";
+                icon.classList.remove("fa-eye");
+                icon.classList.add("fa-eye-slash");
+            } else {
+                input.type = "password";
+                icon.classList.remove("fa-eye-slash");
+                icon.classList.add("fa-eye");
+            }
+        }
+
+        function stopScanner(type) {
+            document.getElementById(`container-${type}`).classList.add('hidden'); // Sembunyikan secara visual
+            try {
+                if (type === 'reader' && html5QrCode) {
+                    html5QrCode.stop().catch(e => console.log(e));
+                } else if (type === 'reader-admin' && html5QrCodeAdmin) {
+                    html5QrCodeAdmin.stop().catch(e => console.log(e));
+                } else if (type === 'reader-edit-member' && html5QrCodeEdit) {
+                    html5QrCodeEdit.stop().catch(e => console.log(e));
+                } else if (type === 'reader-history' && html5QrCodeHistory) {
+                    html5QrCodeHistory.stop().catch(e => console.log(e));
+                }
+            } catch (e) { console.log(e); }
+        }
 
         function switchTab(tab) {
             document.getElementById('form-member').classList.toggle('hidden', tab !== 'member');
@@ -468,24 +532,23 @@
         }
 
         function startScannerHistory() {
-            document.getElementById('reader-history').classList.remove('hidden');
+            document.getElementById('container-reader-history').classList.remove('hidden');
             html5QrCodeHistory = new Html5Qrcode("reader-history");
             html5QrCodeHistory.start({ facingMode: "environment" }, { fps: 10, qrbox: 250 }, (txt) => {
                 document.getElementById('search-riwayat-admin').value = txt;
-                html5QrCodeHistory.stop().then(() => { document.getElementById('reader-history').classList.add('hidden'); fetchRiwayatAdmin(); });
-            }).catch(e => alert("Kamera error"));
+                stopScanner('reader-history');
+                fetchRiwayatAdmin();
+            }).catch(e => { alert("Kamera error/tidak diizinkan"); document.getElementById('container-reader-history').classList.add('hidden'); });
         }
 
         function startScannerEditMember() {
-            document.getElementById('reader-edit-member').classList.remove('hidden');
+            document.getElementById('container-reader-edit-member').classList.remove('hidden');
             html5QrCodeEdit = new Html5Qrcode("reader-edit-member");
             html5QrCodeEdit.start({ facingMode: "environment" }, { fps: 10, qrbox: 250 }, (txt) => {
                 document.getElementById('edit-search-member').value = txt;
-                html5QrCodeEdit.stop().then(() => { 
-                    document.getElementById('reader-edit-member').classList.add('hidden'); 
-                    cariMemberEdit(); 
-                });
-            }).catch(e => alert("Kamera error"));
+                stopScanner('reader-edit-member'); 
+                cariMemberEdit(); 
+            }).catch(e => { alert("Kamera error/tidak diizinkan"); document.getElementById('container-reader-edit-member').classList.add('hidden'); });
         }
 
         async function fetchRiwayatAdmin() {
@@ -613,7 +676,7 @@
 
         async function hapusMember() {
             const id = document.getElementById('edit-member-id-asli').value;
-            if(!confirm("Hapus selamanya?")) return;
+            if(!confirm("Hapus selamanya? Ini juga akan menghapus seluruh riwayat transaksinya!")) return;
             try {
                 const res = await fetch(URL_DATABASE, { method: 'POST', headers: HEADERS_POST, redirect: 'follow', body: JSON.stringify({ action: 'delete_member', id: id }) });
                 const r = await res.json();
@@ -946,9 +1009,7 @@
             const n = document.getElementById('reg-nama').value, hp = document.getElementById('reg-hp').value, alm = document.getElementById('reg-alamat').value;
             if(!n || !hp) return alert("Isi Nama/HP!");
             
-            // --- BAGIAN YANG DIUBAH (ID 12 Digit Angka Acak) ---
             const id = Math.floor(100000000000 + Math.random() * 900000000000).toString();
-            // ----------------------------------------------------
 
             try {
                 const res = await fetch(URL_DATABASE, { method: 'POST', headers: HEADERS_POST, redirect: 'follow', body: JSON.stringify({ action: 'register', id: id, nama: n, hp: hp, alamat: alm }) });
@@ -958,21 +1019,21 @@
         }
 
         function startScanner() {
-            document.getElementById('reader').classList.remove('hidden');
+            document.getElementById('container-reader').classList.remove('hidden');
             html5QrCode = new Html5Qrcode("reader");
             html5QrCode.start({ facingMode: "environment" }, { fps: 10, qrbox: 250 }, (t) => {
                 document.getElementById('input-member-id').value = t;
-                html5QrCode.stop().then(() => document.getElementById('reader').classList.add('hidden'));
-            });
+                stopScanner('reader');
+            }).catch(e => { alert("Kamera error/tidak diizinkan"); document.getElementById('container-reader').classList.add('hidden'); });
         }
         
         function startScannerAdmin() {
-            document.getElementById('reader-admin').classList.remove('hidden');
+            document.getElementById('container-reader-admin').classList.remove('hidden');
             html5QrCodeAdmin = new Html5Qrcode("reader-admin");
             html5QrCodeAdmin.start({ facingMode: "environment" }, { fps: 10, qrbox: 250 }, (t) => {
                 document.getElementById('admin-input-id').value = t;
-                html5QrCodeAdmin.stop().then(() => { document.getElementById('reader-admin').classList.add('hidden'); });
-            });
+                stopScanner('reader-admin');
+            }).catch(e => { alert("Kamera error/tidak diizinkan"); document.getElementById('container-reader-admin').classList.add('hidden'); });
         }
         
         async function prosesUnduhKartu() {
