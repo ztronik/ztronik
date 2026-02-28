@@ -1,0 +1,1300 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Z-TRONIK - Sistem Member</title>
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#064e3b"> 
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
+
+    <style>
+        body { font-family: 'Poppins', sans-serif; background-color: #064e3b; }
+        .pattern-bg { background-color: #ffffff; background-image: radial-gradient(#e5e7eb 1.5px, transparent 1.5px); background-size: 20px 20px; }
+        #reader video, #reader-admin video, #reader-history video, #reader-edit-member video { border-radius: 0.75rem; object-fit: cover; }
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: #f1f5f9; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+    </style>
+</head>
+<body class="min-h-screen flex items-center justify-center p-4">
+
+    <div class="pattern-bg w-full max-w-md rounded-[2rem] p-6 sm:p-8 shadow-2xl relative overflow-hidden text-center">
+        
+        <div class="flex flex-col items-center mb-6 mt-4">
+            <h1 class="text-4xl sm:text-[2.5rem] font-extrabold text-slate-800 tracking-[0.15em] drop-shadow-sm mb-1">Z-TRONIK</h1>
+            <p class="text-[10px] text-emerald-600 font-bold mt-1 uppercase tracking-widest">Sistem Manajemen Member & Poin</p>
+        </div>
+        <hr class="border-slate-100 mb-6">
+
+        <div id="tab-container" class="bg-slate-50 p-1.5 rounded-2xl grid grid-cols-3 gap-1 items-center mb-6 border border-slate-100 relative transition-all duration-300">
+            <button id="tab-member" class="w-full bg-emerald-500 text-white py-2 rounded-xl text-xs font-semibold shadow-sm transition flex flex-col justify-center items-center gap-1" onclick="switchTab('member')"><i class="fa-solid fa-id-card text-lg"></i> Cek Poin</button>
+            <button id="tab-kartu" class="w-full text-slate-400 py-2 rounded-xl text-xs font-medium hover:text-slate-600 transition flex flex-col justify-center items-center gap-1" onclick="switchTab('kartu')"><i class="fa-solid fa-download text-lg"></i> Unduh Kartu</button>
+            <button id="tab-admin" class="w-full text-slate-400 py-2 rounded-xl text-xs font-medium hover:text-slate-600 transition flex flex-col justify-center items-center gap-1" onclick="switchTab('admin')"><i class="fa-solid fa-lock text-yellow-500 text-lg"></i> Admin</button>
+        </div>
+
+        <div id="dashboard-admin" class="hidden transition-all duration-300 text-left">
+            <div class="flex justify-between items-center mb-4 px-1">
+                <h3 class="font-bold text-slate-800 text-lg">Z-TRONIK Dashboard</h3>
+                <button onclick="logoutAdmin(true)" class="text-xs text-red-500 font-bold hover:text-red-600 flex items-center gap-1"><i class="fa-solid fa-power-off"></i> Logout</button>
+            </div>
+
+            <div class="grid grid-cols-3 gap-2 mb-6 bg-slate-100 p-2 rounded-2xl">
+                <button id="btn-menu-poin" class="bg-emerald-500 text-white py-3 rounded-xl text-xs font-bold transition flex flex-col items-center gap-2 shadow-sm" onclick="switchAdminMenu('poin')">
+                    <i class="fa-solid fa-coins text-lg"></i><span>Poin</span>
+                </button>
+                <button id="btn-menu-member" class="text-slate-500 py-3 rounded-xl text-xs font-bold transition flex flex-col items-center gap-2" onclick="switchAdminMenu('member')">
+                    <i class="fa-solid fa-users text-lg"></i><span>Member</span>
+                </button>
+                <button id="btn-menu-riwayat-admin" class="text-slate-500 py-3 rounded-xl text-xs font-bold transition flex flex-col items-center gap-2" onclick="switchAdminMenu('riwayat-admin')">
+                    <i class="fa-solid fa-clock-rotate-left text-lg"></i><span>Histori</span>
+                </button>
+                <button id="btn-menu-hadiah" class="text-slate-500 py-3 rounded-xl text-xs font-bold transition flex flex-col items-center gap-2" onclick="switchAdminMenu('hadiah')">
+                    <i class="fa-solid fa-gift text-lg"></i><span>Hadiah</span>
+                </button>
+                <button id="btn-menu-atur-poin" class="text-slate-500 py-3 rounded-xl text-xs font-bold transition flex flex-col items-center gap-2" onclick="switchAdminMenu('atur-poin')">
+                    <i class="fa-solid fa-star text-lg"></i><span>Atur Poin</span>
+                </button>
+                <button id="btn-menu-pengaturan" class="text-slate-500 py-3 rounded-xl text-xs font-bold transition flex flex-col items-center gap-2" onclick="switchAdminMenu('pengaturan')">
+                    <i class="fa-solid fa-gear text-lg"></i><span>Akses</span>
+                </button>
+            </div>
+
+            <div id="admin-section-poin" class="block">
+                <label class="text-[10px] font-bold text-slate-500 uppercase mb-1 block">ID Member / No. HP</label>
+                <div id="reader-admin" class="mb-4 hidden w-full overflow-hidden border-2 border-emerald-200 rounded-xl"></div>
+                <div class="flex gap-2 mb-4">
+                    <input type="text" id="admin-input-id" placeholder="Scan atau Ketik ID..." class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-medium uppercase text-slate-700 focus:outline-none focus:border-emerald-500">
+                    <button class="bg-emerald-500 text-white px-5 rounded-xl shadow-sm transition active:scale-95" onclick="startScannerAdmin()"><i class="fa-solid fa-qrcode text-xl"></i></button>
+                </div>
+                
+                <select id="metode-poin" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm mb-4 font-medium" onchange="gantiMetode()">
+                    <option value="nominal">TAMBAH POIN (Belanja Nominal)</option>
+                    <option value="produk_khusus">TAMBAH POIN (Beli Produk Khusus)</option>
+                    <option value="hadiah">TUKAR POIN (Hadiah)</option>
+                </select>
+
+                <div id="form-nominal" class="block mb-6">
+                    <label class="text-[10px] font-bold text-emerald-600 uppercase mb-1 block">Total Belanja (Rp)</label>
+                    <input type="number" id="admin-input-nominal" placeholder="Contoh: 50000" class="w-full px-4 py-3 bg-emerald-50 border border-emerald-200 rounded-xl text-sm font-medium" oninput="hitungEstimasiPoin()">
+                    <p id="estimasi-poin-teks" class="text-[10px] text-emerald-600 font-bold mt-2 px-1 hidden italic">Estimasi poin yang didapat: <span id="label-estimasi">0</span> Pts</p>
+                </div>
+                
+                <div id="form-produk-khusus" class="hidden mb-6">
+                    <select id="admin-input-produk-khusus" class="w-full px-4 py-3 bg-blue-50 border border-blue-200 rounded-xl text-sm font-medium">
+                        <option value="" disabled selected>-- Pilih Produk Khusus --</option>
+                    </select>
+                </div>
+
+                <div id="form-hadiah" class="hidden mb-6">
+                    <select id="admin-input-hadiah" class="w-full px-4 py-3 bg-rose-50 border border-rose-200 rounded-xl text-sm font-medium">
+                        <option value="" disabled selected>-- Pilih Hadiah --</option>
+                    </select>
+                </div>
+
+                <button id="btn-add-cart" class="w-full bg-emerald-500 hover:bg-emerald-600 text-white py-4 rounded-xl font-bold text-sm shadow-md transition active:scale-95 flex justify-center items-center gap-2" onclick="tambahKeKeranjang()">
+                    <i class="fa-solid fa-cart-plus"></i> Masukkan ke Keranjang
+                </button>
+
+                <div id="keranjang-container" class="mt-6 flex flex-col gap-3 p-4 bg-slate-50 border border-slate-200 rounded-2xl">
+                    <h4 class="text-[11px] font-bold text-slate-600 uppercase tracking-wider flex items-center gap-2 border-b border-slate-200 pb-2">
+                        <i class="fa-solid fa-cart-shopping"></i> Keranjang Transaksi
+                    </h4>
+                    
+                    <ul id="list-keranjang" class="divide-y divide-slate-100 bg-white rounded-xl border border-slate-200 overflow-hidden shadow-sm">
+                        <li class="p-4 text-[11px] text-center text-slate-400 italic">Keranjang masih kosong.</li>
+                    </ul>
+                    
+                    <div class="flex justify-between items-center bg-emerald-50 p-3 rounded-xl border border-emerald-100">
+                        <span class="text-[10px] font-bold text-emerald-700 uppercase">Estimasi Poin:</span>
+                        <span id="total-perubahan-poin" class="text-lg font-bold text-slate-400">0 Pts</span>
+                    </div>
+                    
+                    <button id="btn-checkout" class="w-full bg-slate-300 text-slate-500 py-4 rounded-xl font-bold text-sm shadow-sm transition" disabled onclick="checkoutKeranjang()">Proses Semua (Checkout)</button>
+                </div>
+            </div>
+
+            <div id="admin-section-atur-poin" class="hidden space-y-4">
+                <div class="bg-emerald-50 p-4 rounded-2xl border border-emerald-100 shadow-sm">
+                    <h4 class="text-xs font-bold text-emerald-800 mb-3 uppercase tracking-wider flex items-center gap-2"><i class="fa-solid fa-calculator"></i> Rasio Poin Belanja Umum</h4>
+                    <label class="text-[10px] text-emerald-700 block mb-1">Setiap Belanja Nominal (Rp):</label>
+                    <input type="number" id="set-rasio-nominal" class="w-full px-4 py-2.5 bg-white border border-emerald-200 rounded-xl text-sm mb-3 focus:outline-none">
+                    <label class="text-[10px] text-emerald-700 block mb-1">Dapatkan Poin:</label>
+                    <input type="number" id="set-rasio-poin" class="w-full px-4 py-2.5 bg-white border border-emerald-200 rounded-xl text-sm mb-4 focus:outline-none">
+                    <button class="w-full bg-emerald-600 text-white py-3 rounded-xl font-bold text-xs shadow-md" onclick="simpanPengaturan('rasio')">Simpan Rasio Umum</button>
+                </div>
+
+                <div class="bg-blue-50 p-4 rounded-2xl border border-blue-100 shadow-sm">
+                    <h4 class="text-xs font-bold text-blue-800 mb-3 uppercase tracking-wider flex items-center gap-2"><i class="fa-solid fa-box-open"></i> Poin Produk Tertentu</h4>
+                    <input type="hidden" id="edit-produk-lama">
+                    <div class="flex gap-2 mb-2">
+                        <input type="text" id="add-nama-produk" placeholder="Nama Produk" class="w-2/3 px-3 py-2.5 bg-white border border-blue-200 rounded-xl text-xs font-medium focus:outline-none">
+                        <input type="number" id="add-poin-produk" placeholder="Poin" class="w-1/3 px-3 py-2.5 bg-white border border-blue-200 rounded-xl text-xs font-medium focus:outline-none">
+                    </div>
+                    <button id="btn-add-produk" class="w-full bg-blue-500 text-white py-3 rounded-xl font-bold text-xs shadow-sm" onclick="simpanKatalogProduk()">Simpan Produk</button>
+                    <button id="btn-cancel-produk" class="hidden w-full mt-2 text-[10px] font-bold text-slate-400" onclick="batalEditProduk()">Batal Edit</button>
+                </div>
+
+                <div class="flex justify-between items-center text-[10px] font-bold text-slate-500 uppercase px-1">
+                    <span>Total: <span id="total-produk-count" class="text-blue-600">0</span></span>
+                    <select id="sort-produk" class="bg-slate-100 border border-slate-200 text-slate-600 rounded px-1.5 py-1 outline-none font-medium" onchange="applyFilterSortProduk()">
+                        <option value="terbaru">Terbaru</option>
+                        <option value="poin_desc">Poin Tertinggi</option>
+                        <option value="poin_asc">Poin Terendah</option>
+                        <option value="nama_asc">Nama A-Z</option>
+                        <option value="nama_desc">Nama Z-A</option>
+                    </select>
+                </div>
+                
+                <div class="bg-white rounded-2xl border border-slate-100 overflow-hidden mb-3 shadow-sm">
+                    <ul id="list-produk-settings" class="divide-y divide-slate-50 min-h-[150px]"></ul>
+                </div>
+
+                <div class="flex justify-between items-center text-[10px] px-1">
+                    <button id="btn-prev-produk" class="px-4 py-2 bg-blue-100 text-blue-700 rounded-lg font-bold disabled:opacity-30" onclick="gantiHalamanProduk(-1)">Prev</button>
+                    <span id="text-page-produk" class="font-bold text-blue-800">Hal 1</span>
+                    <button id="btn-next-produk" class="px-4 py-2 bg-blue-100 text-blue-700 rounded-lg font-bold disabled:opacity-30" onclick="gantiHalamanProduk(1)">Next</button>
+                </div>
+            </div>
+
+            <div id="admin-section-member" class="hidden">
+                <div class="flex gap-2 mb-4">
+                    <button id="btn-mode-tambah" class="w-1/2 bg-emerald-500 text-white py-2.5 rounded-xl text-xs font-bold transition shadow-sm" onclick="switchModeMember('tambah')">Kelola Member</button>
+                    <button id="btn-mode-list" class="w-1/2 text-slate-500 py-2.5 rounded-xl text-xs font-bold transition" onclick="switchModeMember('list')">Daftar Member</button>
+                </div>
+                <div id="form-input-member">
+                    <div id="reader-edit-member" class="mb-4 hidden w-full overflow-hidden border-2 border-amber-200 rounded-xl"></div>
+                    <div class="flex gap-2 mb-4 bg-amber-50 p-2 rounded-xl border border-amber-100">
+                        <input type="text" id="edit-search-member" placeholder="ID / HP..." class="w-full px-3 py-2 bg-white border border-amber-200 rounded-lg text-xs uppercase focus:outline-none">
+                        <button class="bg-amber-500 text-white px-3 rounded-lg shadow-sm" onclick="startScannerEditMember()" title="Scan QR"><i class="fa-solid fa-camera"></i></button>
+                        <button class="w-1/3 bg-amber-600 text-white text-[10px] font-bold rounded-lg shadow-sm" onclick="cariMemberEdit()">Cari</button>
+                    </div>
+
+                    <input type="hidden" id="edit-member-id-asli">
+                    <input type="text" id="reg-nama" placeholder="Nama Member" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm mb-3 font-medium">
+                    <input type="number" id="reg-hp" placeholder="Nomor HP" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm mb-3 font-medium">
+                    <input type="text" id="reg-alamat" placeholder="Alamat" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm mb-6 font-medium">
+                    <div id="btn-member-group-add"><button class="w-full bg-emerald-500 text-white py-3.5 rounded-xl font-bold text-sm shadow-md" onclick="daftarMemberBaru()">Daftar Member Baru</button></div>
+                    <div id="btn-member-group-edit" class="hidden flex gap-2">
+                        <button class="w-2/3 bg-amber-500 text-white py-3.5 rounded-xl font-bold text-sm shadow-md" onclick="simpanEditMember()">Simpan Update</button>
+                        <button class="w-1/3 bg-rose-500 text-white py-3.5 rounded-xl font-bold text-sm shadow-md" onclick="hapusMember()">Hapus</button>
+                    </div>
+                    <button id="btn-member-cancel" class="hidden w-full mt-2 text-[10px] font-bold text-slate-400" onclick="resetFormMember()">Batal</button>
+                </div>
+
+                <div id="form-list-member" class="hidden">
+                    <div class="flex justify-between items-center mb-2 px-1 text-[10px] font-bold text-slate-500 uppercase">
+                        <span>Total: <span id="total-member-count" class="text-emerald-600">0</span></span>
+                        <div class="flex gap-2 items-center">
+                            <select id="sort-member" class="bg-slate-100 border border-slate-200 text-slate-600 rounded px-1.5 py-1 outline-none font-medium" onchange="sortDaftarMember()">
+                                <option value="terbaru">Terbaru</option>
+                                <option value="poin_desc">Poin Tertinggi</option>
+                                <option value="poin_asc">Poin Terendah</option>
+                                <option value="nama_asc">Nama A-Z</option>
+                                <option value="nama_desc">Nama Z-A</option>
+                            </select>
+                            <button onclick="fetchDaftarMember()" class="text-emerald-600"><i class="fa-solid fa-rotate"></i></button>
+                        </div>
+                    </div>
+
+                    <div class="bg-white rounded-xl border border-slate-200 overflow-hidden mb-3 shadow-sm">
+                        <ul id="list-member-container" class="divide-y divide-slate-100 max-h-72 overflow-y-auto"></ul>
+                    </div>
+                    <div class="flex justify-between items-center text-[10px]">
+                        <button id="btn-prev-member" class="px-3 py-1.5 bg-slate-200 rounded font-bold disabled:opacity-30" onclick="gantiHalamanMember(-1)">Prev</button>
+                        <span id="text-page-member" class="font-bold text-slate-500">Hal 1</span>
+                        <button id="btn-next-member" class="px-3 py-1.5 bg-slate-200 rounded font-bold disabled:opacity-30" onclick="gantiHalamanMember(1)">Next</button>
+                    </div>
+                </div>
+            </div>
+
+            <div id="admin-section-riwayat-admin" class="hidden">
+                <div id="reader-history" class="mb-4 hidden w-full overflow-hidden border-2 border-emerald-200 rounded-xl"></div>
+                <div class="flex gap-2 mb-4 bg-emerald-50 p-2 rounded-xl border border-emerald-100">
+                    <input type="text" id="search-riwayat-admin" placeholder="Ketik ID / HP (Kosongkan utk Semua)..." class="w-1/2 px-3 py-2 bg-white border border-emerald-200 rounded-lg text-xs focus:outline-none">
+                    <button class="bg-emerald-500 text-white px-3 rounded-lg shadow-sm" onclick="startScannerHistory()" title="Scan QR Riwayat"><i class="fa-solid fa-camera"></i></button>
+                    <button class="w-1/3 bg-emerald-600 text-white text-[10px] font-bold rounded-lg shadow-sm" onclick="fetchRiwayatAdmin()">Cari</button>
+                </div>
+                <div id="header-riwayat-admin" class="hidden mb-2 px-1 text-[11px] font-bold text-slate-600 border-l-4 border-emerald-500 pl-2">
+                    <span id="nama-riwayat-admin" class="text-emerald-600 block"></span>
+                    <span id="detail-riwayat-admin" class="text-[9px] text-slate-400 font-medium block italic"></span>
+                </div>
+                <div class="bg-white rounded-xl border border-slate-200 overflow-hidden mb-3 shadow-sm">
+                    <ul id="list-riwayat-admin" class="divide-y divide-slate-50 min-h-[200px]">
+                        <li class="p-8 text-xs text-center text-slate-400 italic">Memuat data histori...</li>
+                    </ul>
+                </div>
+                <div id="nav-riwayat-admin" class="hidden flex justify-between items-center text-[10px] px-1">
+                    <button id="btn-prev-riwayat" class="px-4 py-2 bg-emerald-100 text-emerald-700 rounded-lg font-bold disabled:opacity-30" onclick="gantiHalamanRiwayat(-1)">Prev</button>
+                    <span id="text-page-riwayat" class="font-bold text-emerald-800">Hal 1</span>
+                    <button id="btn-next-riwayat" class="px-4 py-2 bg-emerald-100 text-emerald-700 rounded-lg font-bold disabled:opacity-30" onclick="gantiHalamanRiwayat(1)">Next</button>
+                </div>
+            </div>
+
+            <div id="admin-section-hadiah" class="hidden">
+                <div class="bg-amber-50 p-4 rounded-2xl border border-amber-100 mb-4 shadow-sm">
+                    <input type="hidden" id="edit-hadiah-lama">
+                    <div class="flex gap-2 mb-2">
+                        <input type="text" id="add-nama-hadiah" placeholder="Nama Hadiah" class="w-2/3 px-3 py-2.5 bg-white border border-amber-200 rounded-xl text-xs font-medium focus:outline-none">
+                        <input type="number" id="add-poin-hadiah" placeholder="Poin" class="w-1/3 px-3 py-2.5 bg-white border border-amber-200 rounded-xl text-xs font-medium focus:outline-none">
+                    </div>
+                    <button id="btn-add-hadiah" class="w-full bg-amber-500 text-white py-3 rounded-xl font-bold text-xs shadow-sm" onclick="simpanKatalogHadiah()">Simpan Hadiah</button>
+                    <button id="btn-cancel-hadiah" class="hidden w-full mt-2 text-[10px] font-bold text-slate-400" onclick="batalEditHadiah()">Batal Edit</button>
+                </div>
+
+                <div class="flex flex-col gap-2 mb-3">
+                    <input type="text" id="search-hadiah" placeholder="Cari Nama Hadiah..." class="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-xs focus:outline-none focus:border-amber-500" oninput="applyFilterSortHadiah()">
+                    
+                    <div class="flex justify-between items-center text-[10px] font-bold text-slate-500 uppercase px-1">
+                        <span>Total: <span id="total-hadiah-count" class="text-amber-600">0</span></span>
+                        <select id="sort-hadiah" class="bg-slate-100 border border-slate-200 text-slate-600 rounded px-1.5 py-1 outline-none font-medium" onchange="applyFilterSortHadiah()">
+                            <option value="terbaru">Terbaru</option>
+                            <option value="poin_desc">Poin Tertinggi</option>
+                            <option value="poin_asc">Poin Terendah</option>
+                            <option value="nama_asc">Nama A-Z</option>
+                            <option value="nama_desc">Nama Z-A</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-2xl border border-slate-100 overflow-hidden mb-3 shadow-sm">
+                    <ul id="list-hadiah-settings" class="divide-y divide-slate-50 min-h-[150px]"></ul>
+                </div>
+                <div class="flex justify-between items-center text-[10px] px-1">
+                    <button id="btn-prev-hadiah" class="px-4 py-2 bg-amber-100 text-amber-700 rounded-lg font-bold disabled:opacity-30" onclick="gantiHalamanHadiah(-1)">Prev</button>
+                    <span id="text-page-hadiah" class="font-bold text-amber-800">Hal 1</span>
+                    <button id="btn-next-hadiah" class="px-4 py-2 bg-amber-100 text-amber-700 rounded-lg font-bold disabled:opacity-30" onclick="gantiHalamanHadiah(1)">Next</button>
+                </div>
+            </div>
+
+            <div id="admin-section-pengaturan" class="hidden space-y-4">
+                <div class="bg-slate-50 p-4 rounded-2xl border border-slate-100 shadow-sm">
+                    <h4 class="text-xs font-bold text-slate-700 mb-3 uppercase tracking-wider flex items-center gap-2"><i class="fa-solid fa-lock"></i> Akses Admin Utama</h4>
+                    <input type="text" id="set-username" placeholder="Username Baru" class="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl text-sm mb-2 focus:outline-none">
+                    <input type="password" id="set-password" placeholder="Password Baru" class="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl text-sm mb-4 focus:outline-none">
+                    <button class="w-full bg-slate-800 text-white py-3 rounded-xl font-bold text-xs shadow-md" onclick="simpanPengaturan('password')">Update Akses</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="form-admin" class="hidden transition-all duration-300">
+            <p class="text-sm text-slate-500 mb-3">Login Admin Z-TRONIK</p>
+            <input type="text" id="login-user" placeholder="Username" class="w-full px-4 py-3.5 bg-white border border-slate-200 rounded-xl text-sm mb-3 focus:outline-none">
+            <input type="password" id="login-pass" placeholder="Password" class="w-full px-4 py-3.5 bg-white border border-slate-200 rounded-xl text-sm mb-6 focus:outline-none">
+            <button id="btn-login" class="w-full bg-slate-800 text-white py-4 rounded-xl font-bold text-sm shadow-xl transition active:scale-95" onclick="loginAdmin()">Masuk Dashboard</button>
+            
+            <div class="mt-6 flex flex-col items-center gap-1">
+                <p class="text-[10px] text-slate-400 italic font-medium uppercase tracking-tight">
+                    *Lupa username/password? Hubungi <span class="text-emerald-600 font-bold">Developer</span>:
+                </p>
+                <a href="https://wa.me/6281281225335" target="_blank" class="text-emerald-600 font-bold text-lg hover:text-emerald-700 transition flex items-center gap-1">
+                    <i class="fa-brands fa-whatsapp"></i>081281225335
+                </a>
+            </div>
+        </div>
+
+        <div id="form-kartu" class="hidden transition-all duration-300">
+            <p class="text-sm text-slate-500 mb-3">Unduh Kartu Digital Anda</p>
+            <div class="relative mb-6">
+                <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-emerald-500"><i class="fa-solid fa-id-card"></i></div>
+                <input type="text" id="input-cetak-id" placeholder="ID Member / No HP..." class="w-full pl-11 pr-4 py-4 bg-white border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-emerald-500 font-bold uppercase text-slate-700 tracking-wider">
+            </div>
+            <button id="btn-cetak" class="w-full bg-emerald-500 hover:bg-emerald-600 text-white py-4 rounded-xl font-bold text-sm shadow-lg transition active:scale-95 flex justify-center items-center gap-2" onclick="prosesUnduhKartu()"><i class="fa-solid fa-download"></i> PROSES & UNDUH KARTU</button>
+            
+            <canvas id="canvas-kartu" width="850" height="550" style="display:none;"></canvas>
+        </div>
+
+        <div id="form-member" class="block transition-all duration-300">
+            <p class="text-sm text-slate-500 mb-3">Cek poin atau scan kartu anda</p>
+            <div id="reader" class="mb-4 hidden w-full overflow-hidden border-2 border-emerald-200 rounded-xl"></div>
+            <div class="relative mb-6">
+                <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-emerald-500"><i class="fa-solid fa-id-card"></i></div>
+                <input type="text" id="input-member-id" placeholder="ID Member / No HP..." class="w-full pl-11 pr-4 py-4 bg-white border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-emerald-500 font-bold uppercase text-slate-700 tracking-wider">
+            </div>
+            <div class="flex flex-col gap-3">
+                <button id="btn-scan" class="w-full bg-emerald-500 hover:bg-emerald-600 text-white py-4 rounded-xl font-bold text-sm shadow-lg transition active:scale-95 flex justify-center items-center gap-2" onclick="startScanner()"><i class="fa-solid fa-camera"></i> SCAN QR KARTU</button>
+                <button class="w-full bg-slate-100 hover:bg-slate-200 text-emerald-600 py-4 rounded-xl font-bold text-sm transition active:scale-95" onclick="cekKartu()">LIHAT POIN SAYA</button>
+            </div>
+        </div>
+
+        <div class="mt-8 text-center">
+            <p class="text-[10px] text-slate-400 font-medium tracking-widest uppercase">
+                &copy; 2026 <span class="text-emerald-600 font-bold ml-1">Z-TRONIK</span>
+            </p>
+            <p class="text-[8px] text-slate-300 mt-1 uppercase tracking-wider">All rights reserved.</p>
+        </div>
+    </div>
+
+    <div id="modal-result" class="fixed inset-0 bg-slate-900/70 backdrop-blur-sm hidden flex justify-center items-center z-50 px-4 transition-opacity duration-300">
+        <div class="bg-white w-full max-w-sm rounded-[2.5rem] p-6 text-center shadow-2xl transform scale-95 transition-transform duration-300 max-h-[95vh] overflow-y-auto" id="modal-content">
+            <div class="mx-auto mb-4 bg-white p-2 rounded-2xl border-2 border-emerald-100 inline-block shadow-sm">
+                <img id="modal-qr" src="" class="w-28 h-28">
+            </div>
+            <h3 class="text-xl font-bold text-slate-800" id="modal-name">Nama Member</h3>
+            <p class="text-slate-400 text-[10px] mb-2 font-bold uppercase tracking-widest">ID: <span id="modal-id" class="text-slate-700"></span></p>
+            <div class="flex flex-col gap-1 mb-5">
+                <p class="text-slate-500 text-[11px] font-medium flex items-center justify-center gap-1">
+                    <i class="fa-solid fa-phone text-emerald-500"></i> <span id="modal-hp"></span>
+                </p>
+                <p class="text-slate-500 text-[11px] font-medium flex items-center justify-center gap-1 px-4">
+                    <i class="fa-solid fa-location-dot text-emerald-500"></i> <span id="modal-alamat" class="italic"></span>
+                </p>
+            </div>
+            <div class="bg-emerald-50 rounded-[2rem] p-5 mb-6 border border-emerald-100 shadow-inner">
+                <p class="text-[10px] text-emerald-600 font-bold mb-1 uppercase tracking-[0.2em]">Total Poin</p>
+                <p class="text-5xl font-bold text-emerald-600 tracking-tighter" id="modal-poin">0</p>
+            </div>
+            <div class="text-left mb-6 px-1">
+                <h4 class="text-[10px] font-bold text-slate-400 mb-2 uppercase border-b border-slate-100 pb-1 tracking-wider"><i class="fa-solid fa-clock-rotate-left mr-1"></i> Histori 10 Transaksi</h4>
+                <ul id="modal-riwayat" class="space-y-2"></ul>
+            </div>
+            <button onclick="tutupModal()" class="w-full bg-slate-800 text-white py-4 rounded-2xl font-bold text-sm shadow-xl active:scale-95 transition">TUTUP</button>
+        </div>
+    </div>
+
+    <script>
+        // GANTI URL DI BAWAH INI DENGAN URL DEPLOYMENT APP SCRIPT ANDA
+        const URL_DATABASE = "https://script.google.com/macros/s/AKfycbyv7kMUMyU2zq8rvnzac-YTvVNNzMuLQieiHwEK9H_vaXtVMS3t_ptE4Rab8EHAtqgx/exec";
+        const HEADERS_POST = { 'Content-Type': 'text/plain;charset=utf-8' };
+        
+        let rasioNominalSistem = 1000, rasioPoinSistem = 1;
+        let globalHadiah = [], displayedHadiah = [], globalProdukPoin = [], displayedProdukPoin = [], allMembersData = [], currentRiwayatData = [];
+        let currentMemberPage = 1, currentHadiahPage = 1, currentProdukPage = 1, currentRiwayatPage = 1;
+        const itemsPerPage = 10, hadiahPerPage = 5, produkPerPage = 5, riwayatPerPage = 10;
+        let html5QrCode, html5QrCodeAdmin, html5QrCodeHistory, html5QrCodeEdit;
+        let globalRiwayatMode = true;
+
+        let keranjangPoin = [];
+
+        // --- SISTEM IDLE TIMEOUT & PENYIMPANAN SESI ---
+        let idleTimer;
+        const IDLE_LIMIT = 5 * 60 * 1000; // 5 Menit
+
+        function resetIdleTimer() {
+            if (localStorage.getItem('isLoggedIn') === 'true') {
+                localStorage.setItem('lastActivity', Date.now());
+                clearTimeout(idleTimer);
+                idleTimer = setTimeout(() => {
+                    alert("Sesi Admin berakhir otomatis karena tidak ada aktivitas selama 5 menit.");
+                    logoutAdmin(false);
+                }, IDLE_LIMIT);
+            }
+        }
+
+        // Pantau pergerakan mouse, sentuhan, dan ketikan keyboard
+        ['mousemove', 'keydown', 'click', 'scroll', 'touchstart'].forEach(evt => 
+            document.addEventListener(evt, resetIdleTimer)
+        );
+
+        function syncLocalStorage() {
+            if(localStorage.getItem('isLoggedIn') === 'true') {
+                localStorage.setItem('adminData', JSON.stringify({
+                    rasio_nominal: rasioNominalSistem,
+                    rasio_poin: rasioPoinSistem,
+                    hadiah: globalHadiah,
+                    produk_poin: globalProdukPoin
+                }));
+            }
+        }
+        // ----------------------------------------------
+
+        function switchTab(tab) {
+            document.getElementById('form-member').classList.toggle('hidden', tab !== 'member');
+            document.getElementById('form-kartu').classList.toggle('hidden', tab !== 'kartu');
+            
+            // JIKA TAB ADMIN DIKLIK
+            if (tab === 'admin') {
+                // Mengecek status login
+                if (localStorage.getItem('isLoggedIn') === 'true') {
+                    // Jika SUDAH login: Sembunyikan form login, Tampilkan dashboard
+                    document.getElementById('form-admin').classList.add('hidden');
+                    document.getElementById('dashboard-admin').classList.remove('hidden');
+                } else {
+                    // Jika BELUM login: Tampilkan form login, Sembunyikan dashboard
+                    document.getElementById('form-admin').classList.remove('hidden');
+                    document.getElementById('dashboard-admin').classList.add('hidden');
+                }
+            } else {
+                // Jika tab lain (member/kartu) diklik, sembunyikan semua elemen admin
+                document.getElementById('form-admin').classList.add('hidden');
+                document.getElementById('dashboard-admin').classList.add('hidden');
+            }
+
+            const tabs = ['member', 'kartu', 'admin'];
+            tabs.forEach(t => {
+                const btn = document.getElementById(`tab-${t}`);
+                if (t === tab) {
+                    btn.className = "w-full bg-emerald-500 text-white py-2 rounded-xl text-xs font-semibold shadow-sm transition flex flex-col justify-center items-center gap-1";
+                } else {
+                    btn.className = "w-full text-slate-400 py-2 rounded-xl text-xs font-medium hover:text-slate-600 transition flex flex-col justify-center items-center gap-1";
+                }
+            });
+        }
+
+        function switchAdminMenu(menu) {
+            const sections = ['poin', 'member', 'riwayat-admin', 'hadiah', 'atur-poin', 'pengaturan'];
+            sections.forEach(s => document.getElementById(`admin-section-${s}`).classList.toggle('hidden', s !== menu));
+            sections.forEach(s => {
+                const btn = document.getElementById(`btn-menu-${s}`);
+                if(s === menu) { btn.classList.add('bg-emerald-500', 'text-white', 'shadow-sm'); btn.classList.replace('text-slate-500', 'text-white'); }
+                else { btn.classList.remove('bg-emerald-500', 'text-white', 'shadow-sm'); btn.classList.replace('text-white', 'text-slate-500'); }
+            });
+            if(menu === 'hadiah') applyFilterSortHadiah();
+            if(menu === 'atur-poin') applyFilterSortProduk();
+            
+            if(menu === 'riwayat-admin') {
+                if(!document.getElementById('search-riwayat-admin').value.trim()) {
+                    fetchRiwayatAdmin();
+                }
+            }
+        }
+
+        function hitungEstimasiPoin() {
+            const nominal = document.getElementById('admin-input-nominal').value;
+            const labelTeks = document.getElementById('estimasi-poin-teks');
+            const labelPoin = document.getElementById('label-estimasi');
+            
+            if (nominal && nominal >= rasioNominalSistem) {
+                const estimasi = Math.floor(nominal / rasioNominalSistem) * rasioPoinSistem;
+                labelPoin.innerText = estimasi;
+                labelTeks.classList.remove('hidden');
+            } else {
+                labelTeks.classList.add('hidden');
+            }
+        }
+
+        function startScannerHistory() {
+            document.getElementById('reader-history').classList.remove('hidden');
+            html5QrCodeHistory = new Html5Qrcode("reader-history");
+            html5QrCodeHistory.start({ facingMode: "environment" }, { fps: 10, qrbox: 250 }, (txt) => {
+                document.getElementById('search-riwayat-admin').value = txt;
+                html5QrCodeHistory.stop().then(() => { document.getElementById('reader-history').classList.add('hidden'); fetchRiwayatAdmin(); });
+            }).catch(e => alert("Kamera error"));
+        }
+
+        function startScannerEditMember() {
+            document.getElementById('reader-edit-member').classList.remove('hidden');
+            html5QrCodeEdit = new Html5Qrcode("reader-edit-member");
+            html5QrCodeEdit.start({ facingMode: "environment" }, { fps: 10, qrbox: 250 }, (txt) => {
+                document.getElementById('edit-search-member').value = txt;
+                html5QrCodeEdit.stop().then(() => { 
+                    document.getElementById('reader-edit-member').classList.add('hidden'); 
+                    cariMemberEdit(); 
+                });
+            }).catch(e => alert("Kamera error"));
+        }
+
+        async function fetchRiwayatAdmin() {
+            const id = document.getElementById('search-riwayat-admin').value.trim();
+            const list = document.getElementById('list-riwayat-admin');
+            list.innerHTML = '<li class="p-10 text-xs text-center italic text-slate-400">Loading...</li>';
+            
+            try {
+                let bodyData;
+                if (!id) {
+                    bodyData = { action: 'get_all_riwayat' };
+                    globalRiwayatMode = true; 
+                } else {
+                    bodyData = { action: 'get_riwayat_member', id: id };
+                    globalRiwayatMode = false; 
+                }
+
+                const res = await fetch(URL_DATABASE, { method: 'POST', headers: HEADERS_POST, redirect: 'follow', body: JSON.stringify(bodyData) });
+                const r = await res.json();
+                
+                if(r.status === 'success') {
+                    currentRiwayatData = r.riwayat || [];
+                    
+                    if (globalRiwayatMode) {
+                        document.getElementById('header-riwayat-admin').classList.add('hidden'); 
+                    } else {
+                        document.getElementById('header-riwayat-admin').classList.remove('hidden');
+                        document.getElementById('nama-riwayat-admin').innerText = r.nama + " (ID: " + r.id_asli + ")";
+                        
+                        const detail = allMembersData.find(m => m.id == r.id_asli);
+                        if(detail) {
+                            document.getElementById('detail-riwayat-admin').innerText = `No HP: ${detail.hp} | Alamat: ${detail.alamat}`;
+                        }
+                    }
+
+                    document.getElementById('nav-riwayat-admin').classList.remove('hidden');
+                    currentRiwayatPage = 1;
+                    renderRiwayatAdmin();
+                } else {
+                    alert(globalRiwayatMode ? "Gagal memuat histori!" : "Member tidak ditemukan / Gagal!");
+                    list.innerHTML = '<li class="p-8 text-xs text-center text-rose-400 italic">Data tidak ditemukan</li>';
+                }
+            } catch(e) { list.innerHTML = '<li class="p-8 text-xs text-center text-rose-400 italic">Error Server</li>'; }
+        }
+
+        function renderRiwayatAdmin() {
+            const list = document.getElementById('list-riwayat-admin');
+            list.innerHTML = '';
+            
+            if (currentRiwayatData.length === 0) {
+                 list.innerHTML = '<li class="p-8 text-xs text-center text-slate-400 italic">Tidak ada histori transaksi.</li>';
+                 document.getElementById('text-page-riwayat').innerText = `Hal 1 / 1`;
+                 document.getElementById('btn-prev-riwayat').disabled = true;
+                 document.getElementById('btn-next-riwayat').disabled = true;
+                 return;
+            }
+
+            const total = Math.ceil(currentRiwayatData.length / riwayatPerPage);
+            const data = currentRiwayatData.slice((currentRiwayatPage-1)*riwayatPerPage, currentRiwayatPage*riwayatPerPage);
+            
+            data.forEach(r => {
+                const c = r.aksi === 'tambah' ? 'text-emerald-500' : 'text-rose-500';
+                const namaMemberHTML = globalRiwayatMode ? `<span class="font-bold text-blue-600 mb-0.5">${r.nama || '-'} <span class="text-slate-400 font-normal">(ID: ${r.id_asli})</span></span>` : '';
+                
+                list.innerHTML += `<li class="p-3 text-[10px] flex justify-between items-center border-b border-slate-50 last:border-none">
+                    <div class="flex flex-col">
+                        ${namaMemberHTML}
+                        <span class="font-bold text-slate-700 uppercase">${r.item}</span>
+                        <span class="text-slate-400 text-[9px]">${r.tanggal}</span>
+                    </div>
+                    <span class="font-bold ${c} text-xs">${r.aksi==='tambah'?'+':'-'}${r.poin}</span>
+                </li>`;
+            });
+            document.getElementById('text-page-riwayat').innerText = `Hal ${currentRiwayatPage} / ${total}`;
+            document.getElementById('btn-prev-riwayat').disabled = currentRiwayatPage === 1;
+            document.getElementById('btn-next-riwayat').disabled = currentRiwayatPage >= total;
+        }
+        function gantiHalamanRiwayat(s) { currentRiwayatPage += s; renderRiwayatAdmin(); }
+
+        function switchModeMember(mode) {
+            document.getElementById('form-input-member').classList.toggle('hidden', mode !== 'tambah');
+            document.getElementById('form-list-member').classList.toggle('hidden', mode !== 'list');
+            document.getElementById('btn-mode-tambah').className = mode === 'tambah' ? "w-1/2 bg-emerald-500 text-white py-2.5 rounded-xl text-xs font-bold shadow-sm" : "w-1/2 text-slate-500 py-2.5 rounded-xl text-xs font-bold";
+            document.getElementById('btn-mode-list').className = mode === 'list' ? "w-1/2 bg-emerald-500 text-white py-2.5 rounded-xl text-xs font-bold shadow-sm" : "w-1/2 text-slate-500 py-2.5 rounded-xl text-xs font-bold";
+            if(mode === 'list') fetchDaftarMember();
+        }
+
+        async function cariMemberEdit() {
+            const q = document.getElementById('edit-search-member').value;
+            if(!q) return alert("Isi ID!");
+            try {
+                const res = await fetch(URL_DATABASE, { method: 'POST', headers: HEADERS_POST, redirect: 'follow', body: JSON.stringify({ action: 'get_member', id: q }) });
+                const r = await res.json();
+                if(r.status === 'success') {
+                    document.getElementById('edit-member-id-asli').value = r.id_asli;
+                    document.getElementById('reg-nama').value = r.nama;
+                    document.getElementById('reg-hp').value = r.hp;
+                    document.getElementById('reg-alamat').value = r.alamat;
+                    document.getElementById('btn-member-group-add').classList.add('hidden');
+                    document.getElementById('btn-member-group-edit').classList.remove('hidden');
+                    document.getElementById('btn-member-cancel').classList.remove('hidden');
+                } else alert("Gagal!");
+            } catch(e) { alert("Error"); }
+        }
+
+        function resetFormMember() {
+            document.getElementById('edit-member-id-asli').value = '';
+            document.getElementById('reg-nama').value = ''; document.getElementById('reg-hp').value = ''; document.getElementById('reg-alamat').value = '';
+            document.getElementById('edit-search-member').value = '';
+            document.getElementById('btn-member-group-add').classList.remove('hidden');
+            document.getElementById('btn-member-group-edit').classList.add('hidden');
+            document.getElementById('btn-member-cancel').classList.add('hidden');
+        }
+
+        async function simpanEditMember() {
+            const id = document.getElementById('edit-member-id-asli').value;
+            const n = document.getElementById('reg-nama').value, hp = document.getElementById('reg-hp').value, alm = document.getElementById('reg-alamat').value;
+            if(!confirm("Update data member?")) return;
+            try {
+                const res = await fetch(URL_DATABASE, { method: 'POST', headers: HEADERS_POST, redirect: 'follow', body: JSON.stringify({ action: 'update_member', id: id, nama: n, hp: hp, alamat: alm }) });
+                const r = await res.json();
+                if(r.status === 'success') { alert("Berhasil!"); resetFormMember(); fetchDaftarMember(); }
+            } catch(e) { alert("Gagal"); }
+        }
+
+        async function hapusMember() {
+            const id = document.getElementById('edit-member-id-asli').value;
+            if(!confirm("Hapus selamanya?")) return;
+            try {
+                const res = await fetch(URL_DATABASE, { method: 'POST', headers: HEADERS_POST, redirect: 'follow', body: JSON.stringify({ action: 'delete_member', id: id }) });
+                const r = await res.json();
+                if(r.status === 'success') { alert("Terhapus!"); resetFormMember(); fetchDaftarMember(); }
+            } catch(e) { alert("Error"); }
+        }
+
+        function sortDaftarMember() {
+            const sortType = document.getElementById('sort-member').value;
+            if (sortType === 'poin_desc') {
+                allMembersData.sort((a, b) => b.poin - a.poin);
+            } else if (sortType === 'poin_asc') {
+                allMembersData.sort((a, b) => a.poin - b.poin);
+            } else if (sortType === 'nama_asc') {
+                allMembersData.sort((a, b) => a.nama.localeCompare(b.nama));
+            } else if (sortType === 'nama_desc') {
+                allMembersData.sort((a, b) => b.nama.localeCompare(a.nama));
+            } else {
+                allMembersData.sort((a, b) => b.id - a.id); 
+            }
+            currentMemberPage = 1;
+            renderDaftarMember();
+        }
+
+        async function fetchDaftarMember() {
+            const list = document.getElementById('list-member-container');
+            list.innerHTML = '<li class="p-8 text-xs text-center italic text-slate-400">Loading...</li>';
+            try {
+                const res = await fetch(URL_DATABASE, { method: 'POST', headers: HEADERS_POST, redirect: 'follow', body: JSON.stringify({ action: 'get_all_members' }) });
+                const r = await res.json();
+                if(r.status === 'success') { 
+                    allMembersData = r.members.reverse(); 
+                    document.getElementById('total-member-count').innerText = allMembersData.length;
+                    sortDaftarMember(); 
+                }
+            } catch(e) { list.innerHTML = 'Error'; }
+        }
+
+        function renderDaftarMember() {
+            const list = document.getElementById('list-member-container');
+            list.innerHTML = '';
+            const total = Math.ceil(allMembersData.length / itemsPerPage);
+            const data = allMembersData.slice((currentMemberPage-1)*itemsPerPage, currentMemberPage*itemsPerPage);
+            data.forEach(m => {
+                list.innerHTML += `<li class="p-3 text-[10px] flex justify-between items-center"><div class="flex flex-col"><span class="font-bold text-slate-800 text-xs">${m.nama}</span><span class="text-slate-400 uppercase">ID: ${m.id} | HP: ${m.hp}</span><span class="text-[9px] text-slate-300 italic truncate w-40">${m.alamat}</span></div><span class="text-emerald-600 font-bold bg-emerald-50 px-2 py-1 rounded-lg">${m.poin} Pts</span></li>`;
+            });
+            document.getElementById('text-page-member').innerText = `Hal ${currentMemberPage} / ${total || 1}`;
+            document.getElementById('btn-prev-member').disabled = currentMemberPage === 1;
+            document.getElementById('btn-next-member').disabled = currentMemberPage >= total || total === 0;
+        }
+        function gantiHalamanMember(s) { currentMemberPage += s; renderDaftarMember(); }
+
+        function applyFilterSortHadiah() {
+            const query = document.getElementById('search-hadiah').value.toLowerCase();
+            const sortType = document.getElementById('sort-hadiah').value;
+
+            displayedHadiah = globalHadiah.filter(h => h.nama.toLowerCase().includes(query));
+
+            if (sortType === 'poin_desc') {
+                displayedHadiah.sort((a, b) => b.poin - a.poin);
+            } else if (sortType === 'poin_asc') {
+                displayedHadiah.sort((a, b) => a.poin - b.poin);
+            } else if (sortType === 'nama_asc') {
+                displayedHadiah.sort((a, b) => a.nama.localeCompare(b.nama));
+            } else if (sortType === 'nama_desc') {
+                displayedHadiah.sort((a, b) => b.nama.localeCompare(a.nama));
+            } else {
+                displayedHadiah = globalHadiah.filter(h => h.nama.toLowerCase().includes(query));
+            }
+
+            currentHadiahPage = 1;
+            renderHadiah();
+        }
+
+        function renderHadiah() {
+            const sel = document.getElementById('admin-input-hadiah');
+            sel.innerHTML = '<option value="" disabled selected>-- Pilih Hadiah --</option>';
+            globalHadiah.forEach(h => sel.innerHTML += `<option value="${h.poin}">${h.nama} (-${h.poin} Pts)</option>`);
+            
+            const list = document.getElementById('list-hadiah-settings');
+            list.innerHTML = '';
+            
+            document.getElementById('total-hadiah-count').innerText = displayedHadiah.length;
+            const total = Math.ceil(displayedHadiah.length / hadiahPerPage);
+            const data = displayedHadiah.slice((currentHadiahPage-1)*hadiahPerPage, currentHadiahPage*hadiahPerPage);
+            
+            if(data.length === 0) {
+                list.innerHTML = '<li class="p-4 text-xs text-center text-slate-400 italic">Hadiah tidak ditemukan.</li>';
+            } else {
+                data.forEach(h => {
+                    list.innerHTML += `<li class="p-3.5 flex justify-between items-center text-xs"><div class="flex flex-col font-bold"><span>${h.nama}</span><span class="text-amber-600 text-[10px]">${h.poin} Pts</span></div><div class="flex gap-1"><button onclick="siapkanEditHadiah('${h.nama}', ${h.poin})" class="w-8 h-8 bg-blue-50 text-blue-500 rounded-full flex items-center justify-center transition active:scale-90"><i class="fa-solid fa-pen"></i></button><button onclick="hapusHadiah('${h.nama}')" class="w-8 h-8 bg-rose-50 text-rose-500 rounded-full flex items-center justify-center transition active:scale-90"><i class="fa-solid fa-trash"></i></button></div></li>`;
+                });
+            }
+
+            document.getElementById('text-page-hadiah').innerText = `Hal ${currentHadiahPage} / ${total || 1}`;
+            document.getElementById('btn-prev-hadiah').disabled = currentHadiahPage === 1;
+            document.getElementById('btn-next-hadiah').disabled = currentHadiahPage >= total || total === 0;
+        }
+        function gantiHalamanHadiah(s) { currentHadiahPage += s; renderHadiah(); }
+
+        function applyFilterSortProduk() {
+            const sortType = document.getElementById('sort-produk').value;
+            displayedProdukPoin = [...globalProdukPoin];
+
+            if (sortType === 'poin_desc') {
+                displayedProdukPoin.sort((a, b) => b.poin - a.poin);
+            } else if (sortType === 'poin_asc') {
+                displayedProdukPoin.sort((a, b) => a.poin - b.poin);
+            } else if (sortType === 'nama_asc') {
+                displayedProdukPoin.sort((a, b) => a.nama.localeCompare(b.nama));
+            } else if (sortType === 'nama_desc') {
+                displayedProdukPoin.sort((a, b) => b.nama.localeCompare(a.nama));
+            }
+
+            currentProdukPage = 1;
+            renderProdukPoin();
+        }
+
+        function renderProdukPoin() {
+            const selP = document.getElementById('admin-input-produk-khusus');
+            selP.innerHTML = '<option value="" disabled selected>-- Pilih Produk Khusus --</option>';
+            globalProdukPoin.forEach(p => selP.innerHTML += `<option value="${p.poin}">${p.nama} (+${p.poin} Pts)</option>`);
+
+            const list = document.getElementById('list-produk-settings');
+            list.innerHTML = '';
+            
+            document.getElementById('total-produk-count').innerText = displayedProdukPoin.length;
+            const total = Math.ceil(displayedProdukPoin.length / produkPerPage);
+            const data = displayedProdukPoin.slice((currentProdukPage-1)*produkPerPage, currentProdukPage*produkPerPage);
+
+            if(data.length === 0) {
+                list.innerHTML = '<li class="p-4 text-xs text-center text-slate-400 italic">Belum ada produk khusus.</li>';
+            } else {
+                data.forEach(p => {
+                    list.innerHTML += `<li class="p-3.5 flex justify-between items-center text-xs"><div class="flex flex-col font-bold text-slate-700"><span>${p.nama}</span><span class="text-blue-600 text-[10px]">+${p.poin} Pts</span></div><div class="flex gap-1"><button onclick="siapkanEditProduk('${p.nama}', ${p.poin})" class="w-8 h-8 bg-amber-50 text-amber-500 rounded-full flex items-center justify-center transition active:scale-90"><i class="fa-solid fa-pen"></i></button><button onclick="hapusProduk('${p.nama}')" class="w-8 h-8 bg-rose-50 text-rose-500 rounded-full flex items-center justify-center transition active:scale-90"><i class="fa-solid fa-trash"></i></button></div></li>`;
+                });
+            }
+
+            document.getElementById('text-page-produk').innerText = `Hal ${currentProdukPage} / ${total || 1}`;
+            document.getElementById('btn-prev-produk').disabled = currentProdukPage === 1;
+            document.getElementById('btn-next-produk').disabled = currentProdukPage >= total || total === 0;
+        }
+        function gantiHalamanProduk(s) { currentProdukPage += s; renderProdukPoin(); }
+
+        async function simpanKatalogProduk() {
+            const l = document.getElementById('edit-produk-lama').value;
+            const bn = document.getElementById('add-nama-produk').value;
+            const bp = document.getElementById('add-poin-produk').value;
+            if(!bn || !bp) return alert("Isi Nama Produk dan Poin!");
+            
+            try {
+                const a = l ? 'edit_produk_poin' : 'add_produk_poin';
+                const body = { action: a, nama: bn, poin: bp, nama_lama: l, nama_baru: bn, poin_baru: bp };
+                const res = await fetch(URL_DATABASE, { method: 'POST', headers: HEADERS_POST, redirect: 'follow', body: JSON.stringify(body) });
+                const r = await res.json();
+                
+                if(r.status === 'success') { 
+                    if(l) {
+                        const idx = globalProdukPoin.findIndex(x => x.nama === l);
+                        if(idx > -1) { globalProdukPoin[idx].nama = bn; globalProdukPoin[idx].poin = parseInt(bp); }
+                    } else {
+                        globalProdukPoin.push({nama: bn, poin: parseInt(bp)});
+                    }
+                    batalEditProduk();
+                    applyFilterSortProduk();
+                    syncLocalStorage();
+                    alert("Produk berhasil disimpan!"); 
+                }
+            } catch(e) { alert("Error Server"); }
+        }
+
+        function siapkanEditProduk(n, p) {
+            document.getElementById('edit-produk-lama').value = n; 
+            document.getElementById('add-nama-produk').value = n; 
+            document.getElementById('add-poin-produk').value = p;
+            document.getElementById('btn-cancel-produk').classList.remove('hidden'); 
+            document.getElementById('btn-add-produk').innerText = "Update Produk";
+            document.getElementById('btn-add-produk').classList.replace('bg-blue-500', 'bg-amber-500');
+        }
+
+        function batalEditProduk() {
+            document.getElementById('edit-produk-lama').value = ''; 
+            document.getElementById('add-nama-produk').value = ''; 
+            document.getElementById('add-poin-produk').value = '';
+            document.getElementById('btn-cancel-produk').classList.add('hidden'); 
+            document.getElementById('btn-add-produk').innerText = "Simpan Produk";
+            document.getElementById('btn-add-produk').classList.replace('bg-amber-500', 'bg-blue-500');
+        }
+
+        async function hapusProduk(n) {
+            if(!confirm("Hapus aturan poin produk ini?")) return;
+            try { 
+                const res = await fetch(URL_DATABASE, { method: 'POST', headers: HEADERS_POST, redirect: 'follow', body: JSON.stringify({ action: 'delete_produk_poin', nama: n }) }); 
+                const r = await res.json();
+                if(r.status === 'success') {
+                    globalProdukPoin = globalProdukPoin.filter(x => x.nama !== n);
+                    applyFilterSortProduk();
+                    syncLocalStorage();
+                    alert("Produk berhasil dihapus!");
+                }
+            } catch(e) { alert("Error Server"); }
+        }
+
+        async function simpanKatalogHadiah() {
+            const l = document.getElementById('edit-hadiah-lama').value, bn = document.getElementById('add-nama-hadiah').value, bp = document.getElementById('add-poin-hadiah').value;
+            if(!bn || !bp) return alert("Isi form hadiah!");
+            
+            try {
+                const a = l ? 'edit_hadiah' : 'add_hadiah';
+                const body = { action: a, nama: bn, poin: bp, nama_lama: l, nama_baru: bn, poin_baru: bp };
+                const res = await fetch(URL_DATABASE, { method: 'POST', headers: HEADERS_POST, redirect: 'follow', body: JSON.stringify(body) });
+                const r = await res.json();
+                
+                if(r.status === 'success') {
+                    if(l) {
+                        const idx = globalHadiah.findIndex(x => x.nama === l);
+                        if(idx > -1) { globalHadiah[idx].nama = bn; globalHadiah[idx].poin = parseInt(bp); }
+                    } else {
+                        globalHadiah.push({nama: bn, poin: parseInt(bp)});
+                    }
+                    batalEditHadiah();
+                    applyFilterSortHadiah();
+                    syncLocalStorage();
+                    alert("Hadiah berhasil disimpan!");
+                }
+            } catch(e) { alert("Error Server"); }
+        }
+        
+        function siapkanEditHadiah(n,p) {
+            document.getElementById('edit-hadiah-lama').value = n; document.getElementById('add-nama-hadiah').value = n; document.getElementById('add-poin-hadiah').value = p;
+            document.getElementById('btn-cancel-hadiah').classList.remove('hidden'); document.getElementById('btn-add-hadiah').innerText = "Update Katalog Hadiah";
+        }
+
+        function batalEditHadiah() {
+            document.getElementById('edit-hadiah-lama').value = ''; document.getElementById('add-nama-hadiah').value = ''; document.getElementById('add-poin-hadiah').value = '';
+            document.getElementById('btn-cancel-hadiah').classList.add('hidden'); document.getElementById('btn-add-hadiah').innerText = "Simpan Katalog Hadiah";
+        }
+
+        async function hapusHadiah(n) {
+            if(!confirm("Hapus hadiah ini?")) return;
+            try { 
+                const res = await fetch(URL_DATABASE, { method: 'POST', headers: HEADERS_POST, redirect: 'follow', body: JSON.stringify({ action: 'delete_hadiah', nama: n }) }); 
+                const r = await res.json();
+                if(r.status === 'success') {
+                    globalHadiah = globalHadiah.filter(x => x.nama !== n);
+                    applyFilterSortHadiah();
+                    syncLocalStorage();
+                    alert("Hadiah berhasil dihapus!");
+                }
+            } catch(e) { alert("Error Server"); }
+        }
+
+        function tampilkanDashboardLokal(r) {
+            rasioNominalSistem = r.rasio_nominal; 
+            rasioPoinSistem = r.rasio_poin;
+            globalHadiah = r.hadiah || []; 
+            displayedHadiah = [...globalHadiah]; 
+            globalProdukPoin = r.produk_poin || []; 
+            displayedProdukPoin = [...globalProdukPoin];
+            
+            document.getElementById('set-rasio-nominal').value = r.rasio_nominal;
+            document.getElementById('set-rasio-poin').value = r.rasio_poin;
+
+            fetchDaftarMember(); 
+            applyFilterSortProduk(); 
+            applyFilterSortHadiah();
+            
+            resetIdleTimer();
+            
+            // Panggil switchTab LEBIH DULU agar class default dirender
+            switchTab('admin'); 
+
+            // KEMUDIAN sembunyikan dengan inline style agar tidak terhapus
+            document.getElementById('tab-member').style.display = 'none';
+            document.getElementById('tab-kartu').style.display = 'none';
+            
+            const tabContainer = document.getElementById('tab-container');
+            tabContainer.classList.remove('grid-cols-3');
+            tabContainer.classList.add('grid-cols-1');
+        }
+
+        async function loginAdmin() {
+            const u = document.getElementById('login-user').value, p = document.getElementById('login-pass').value;
+            if(!u || !p) return alert("Isi form!");
+            const btn = document.getElementById('btn-login'); btn.innerText = "...";
+            try {
+                const res = await fetch(URL_DATABASE, { method: 'POST', headers: HEADERS_POST, redirect: 'follow', body: JSON.stringify({ action: 'login', username: u, password: p }) });
+                const r = await res.json();
+                if(r.status === 'success') {
+                    // Simpan sesi ke browser
+                    localStorage.setItem('isLoggedIn', 'true');
+                    localStorage.setItem('adminData', JSON.stringify({
+                        rasio_nominal: r.rasio_nominal,
+                        rasio_poin: r.rasio_poin,
+                        hadiah: r.hadiah || [],
+                        produk_poin: r.produk_poin || []
+                    }));
+                    localStorage.setItem('lastActivity', Date.now());
+                    
+                    tampilkanDashboardLokal(r);
+                } else alert("Username/Password Salah!");
+            } catch(e) { alert("Error"); } finally { btn.innerText = "Masuk Dashboard"; }
+        }
+
+        async function cekKartu() {
+            const id = document.getElementById('input-member-id').value;
+            if(!id) return alert("Isi ID!");
+            try {
+                const res = await fetch(`${URL_DATABASE}?id=${id}`);
+                const r = await res.json();
+                if(r.status === 'success') {
+                    document.getElementById('modal-qr').src = `https://api.qrserver.com/v1/create-qr-code/?data=${r.id_asli}`;
+                    document.getElementById('modal-name').innerText = r.nama;
+                    document.getElementById('modal-id').innerText = r.id_asli;
+                    document.getElementById('modal-poin').innerText = r.poin;
+                    document.getElementById('modal-hp').innerText = r.hp || "-";
+                    document.getElementById('modal-alamat').innerText = r.alamat || "-";
+                    const rl = document.getElementById('modal-riwayat'); rl.innerHTML = '';
+                    r.riwayat.forEach(row => {
+                        const c = row.aksi === 'tambah' ? 'text-emerald-500' : 'text-rose-500';
+                        rl.innerHTML += `<li class="flex justify-between text-[11px] p-2 bg-slate-50 rounded-xl border border-slate-100"><div><b>${row.item}</b><br><small class="text-slate-400">${row.tanggal}</small></div><span class="font-bold ${c}">${row.aksi==='tambah'?'+':'-'}${row.poin}</span></li>`;
+                    });
+                    document.getElementById('modal-result').classList.remove('hidden');
+                    setTimeout(() => document.getElementById('modal-content').classList.replace('scale-95', 'scale-100'), 10);
+                } else alert("Gagal!");
+            } catch(e) { alert("Error"); }
+        }
+
+        async function daftarMemberBaru() {
+            const n = document.getElementById('reg-nama').value, hp = document.getElementById('reg-hp').value, alm = document.getElementById('reg-alamat').value;
+            if(!n || !hp) return alert("Isi Nama/HP!");
+            const id = Math.floor(1000000 + Math.random() * 9000000).toString();
+            try {
+                const res = await fetch(URL_DATABASE, { method: 'POST', headers: HEADERS_POST, redirect: 'follow', body: JSON.stringify({ action: 'register', id: id, nama: n, hp: hp, alamat: alm }) });
+                const r = await res.json();
+                if(r.status === 'success') { alert("ID: " + id); resetFormMember(); fetchDaftarMember(); }
+            } catch(e) { alert("Gagal"); }
+        }
+
+        function startScanner() {
+            document.getElementById('reader').classList.remove('hidden');
+            html5QrCode = new Html5Qrcode("reader");
+            html5QrCode.start({ facingMode: "environment" }, { fps: 10, qrbox: 250 }, (t) => {
+                document.getElementById('input-member-id').value = t;
+                html5QrCode.stop().then(() => document.getElementById('reader').classList.add('hidden'));
+            });
+        }
+        
+        function startScannerAdmin() {
+            document.getElementById('reader-admin').classList.remove('hidden');
+            html5QrCodeAdmin = new Html5Qrcode("reader-admin");
+            html5QrCodeAdmin.start({ facingMode: "environment" }, { fps: 10, qrbox: 250 }, (t) => {
+                document.getElementById('admin-input-id').value = t;
+                html5QrCodeAdmin.stop().then(() => { document.getElementById('reader-admin').classList.add('hidden'); });
+            });
+        }
+        
+        async function prosesUnduhKartu() {
+            const id = document.getElementById('input-cetak-id').value;
+            if(!id) return alert("Isi ID Member atau No HP terlebih dahulu!");
+            
+            const btn = document.getElementById('btn-cetak');
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> MENCARI DATA...';
+            btn.disabled = true;
+
+            try {
+                const res = await fetch(`${URL_DATABASE}?id=${id}`);
+                const r = await res.json();
+                
+                if(r.status === 'success') {
+                    btn.innerHTML = '<i class="fa-solid fa-palette"></i> MENGGAMBAR KARTU...';
+                    buatDanUnduhCanvas(r.nama, r.id_asli, r.alamat || "-");
+                } else {
+                    alert("Member tidak ditemukan!");
+                    btn.innerHTML = '<i class="fa-solid fa-download"></i> PROSES & UNDUH KARTU';
+                    btn.disabled = false;
+                }
+            } catch(e) { 
+                alert("Terjadi kesalahan jaringan."); 
+                btn.innerHTML = '<i class="fa-solid fa-download"></i> PROSES & UNDUH KARTU';
+                btn.disabled = false;
+            }
+        }
+
+        function buatDanUnduhCanvas(nama, idAsli, alamat) {
+            const canvas = document.getElementById('canvas-kartu');
+            const ctx = canvas.getContext('2d');
+            
+            ctx.clearRect(0, 0, 850, 550);
+            ctx.save(); 
+            ctx.beginPath();
+            ctx.roundRect(0, 0, 850, 550, 35); 
+            ctx.clip(); 
+
+            const grd = ctx.createLinearGradient(0, 0, 850, 550);
+            grd.addColorStop(0, "#022c22"); 
+            grd.addColorStop(1, "#059669"); 
+            ctx.fillStyle = grd;
+            ctx.fillRect(0, 0, 850, 550);
+
+            ctx.fillStyle = "rgba(16, 185, 129, 0.2)"; 
+            ctx.beginPath();
+            ctx.moveTo(400, 0);
+            ctx.lineTo(850, 0);
+            ctx.lineTo(850, 300);
+            ctx.fill();
+
+            ctx.fillStyle = "rgba(4, 120, 87, 0.4)"; 
+            ctx.beginPath();
+            ctx.arc(0, 550, 250, 0, 2 * Math.PI);
+            ctx.fill();
+            
+            ctx.beginPath();
+            ctx.moveTo(0, 120);
+            ctx.lineTo(850, 120);
+            ctx.strokeStyle = "rgba(251, 191, 36, 0.8)"; 
+            ctx.lineWidth = 2;
+            ctx.stroke();
+
+            ctx.shadowColor = "rgba(0, 0, 0, 0.3)";
+            ctx.shadowBlur = 4;
+            ctx.shadowOffsetX = 2;
+            ctx.shadowOffsetY = 2;
+            ctx.fillStyle = "#ffffff";
+            ctx.font = "800 46px Poppins, Arial"; 
+            ctx.textAlign = "left";
+            ctx.fillText("Z-TRONIK", 70, 70);
+            
+            ctx.shadowColor = "transparent"; 
+            ctx.fillStyle = "#fbbf24"; 
+            ctx.font = "italic 400 22px Poppins, Arial"; 
+            ctx.fillText("Member Card Digital", 73, 100);
+
+            ctx.textAlign = "left";
+            
+            ctx.fillStyle = "rgba(255, 255, 255, 0.6)";
+            ctx.font = "16px Poppins, Arial";
+            ctx.fillText("NAMA MEMBER", 70, 180);
+            ctx.fillStyle = "#ffffff";
+            ctx.font = "bold 34px Poppins, Arial";
+            ctx.fillText(nama.toUpperCase(), 70, 220);
+
+            ctx.fillStyle = "rgba(255, 255, 255, 0.6)";
+            ctx.font = "16px Poppins, Arial";
+            ctx.fillText("ID MEMBER", 70, 300);
+            ctx.fillStyle = "#facc15"; 
+            ctx.font = "bold 36px Poppins, Arial";
+            ctx.fillText(idAsli, 70, 340);
+
+            ctx.fillStyle = "rgba(255, 255, 255, 0.6)";
+            ctx.font = "16px Poppins, Arial";
+            ctx.fillText("ALAMAT", 70, 420);
+            ctx.fillStyle = "#ffffff";
+            ctx.font = "bold 22px Poppins, Arial";
+            const potongAlamat = alamat.length > 35 ? alamat.substring(0, 35) + "..." : alamat;
+            ctx.fillText(potongAlamat, 70, 455);
+
+            const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=240x240&data=${idAsli}&margin=0`;
+            const img = new Image();
+            img.crossOrigin = "Anonymous"; 
+            
+            img.onload = function() {
+                ctx.fillStyle = "#ffffff";
+                ctx.beginPath();
+                ctx.roundRect(520, 140, 260, 310, 16);
+                ctx.fill();
+                
+                ctx.drawImage(img, 530, 150, 240, 240);
+
+                ctx.fillStyle = "#022c22"; 
+                ctx.font = "bold 16px Poppins, Arial";
+                ctx.textAlign = "center";
+                ctx.fillText("SCAN UNTUK CEK POIN", 650, 425);
+
+                ctx.restore();
+
+                const link = document.createElement('a');
+                link.download = `Z-Tronik_Member_${idAsli}.png`;
+                link.href = canvas.toDataURL("image/png");
+                link.click();
+                
+                const btn = document.getElementById('btn-cetak');
+                btn.innerHTML = '<i class="fa-solid fa-check"></i> BERHASIL DIUNDUH';
+                setTimeout(() => {
+                    btn.innerHTML = '<i class="fa-solid fa-download"></i> PROSES & UNDUH KARTU';
+                    btn.disabled = false;
+                }, 3000);
+            };
+
+            img.onerror = function() {
+                alert("Gagal merender QR Code. Cek koneksi internet Anda.");
+                document.getElementById('btn-cetak').disabled = false;
+                document.getElementById('btn-cetak').innerHTML = '<i class="fa-solid fa-download"></i> PROSES & UNDUH KARTU';
+            };
+            img.src = qrUrl;
+        }
+
+        function logoutAdmin(isManual = false) { 
+            if(isManual && !confirm("Yakin ingin logout dari Admin?")) return;
+            localStorage.removeItem('isLoggedIn');
+            localStorage.removeItem('adminData');
+            localStorage.removeItem('lastActivity');
+            location.reload(); 
+        }
+        
+        function tutupModal() { 
+            document.getElementById('modal-content').classList.replace('scale-100', 'scale-95');
+            setTimeout(() => document.getElementById('modal-result').classList.add('hidden'), 200); 
+        }
+
+        function gantiMetode() {
+            const m = document.getElementById('metode-poin').value;
+            document.getElementById('form-nominal').classList.toggle('hidden', m !== 'nominal');
+            document.getElementById('form-produk-khusus').classList.toggle('hidden', m !== 'produk_khusus');
+            document.getElementById('form-hadiah').classList.toggle('hidden', m !== 'hadiah');
+        }
+
+        // =========================================================
+        // LOGIKA KERANJANG
+        // =========================================================
+
+        function tambahKeKeranjang() {
+            const id = document.getElementById('admin-input-id').value;
+            if(!id) return alert("Scan atau ketik ID Member terlebih dahulu!");
+
+            const met = document.getElementById('metode-poin').value;
+            let amt = 0, item = "", aksi = "tambah";
+
+            if(met === 'nominal') {
+                const nom = document.getElementById('admin-input-nominal').value;
+                if(!nom) return alert("Isi total belanja!");
+                amt = Math.floor(nom / rasioNominalSistem) * rasioPoinSistem;
+                item = `Belanja Rp ${nom}`;
+            } else if (met === 'produk_khusus') {
+                const s = document.getElementById('admin-input-produk-khusus');
+                if(!s.value) return alert("Pilih produk!");
+                amt = parseInt(s.value); 
+                item = `Beli: ${s.options[s.selectedIndex].text.split(' (+')[0]}`;
+            } else if (met === 'hadiah') {
+                const s = document.getElementById('admin-input-hadiah');
+                if(!s.value) return alert("Pilih hadiah!");
+                amt = parseInt(s.value); 
+                item = `Tukar: ${s.options[s.selectedIndex].text.split(' (-')[0]}`;
+                aksi = "kurang";
+            }
+
+            if(amt <= 0) return alert("Nilai transaksi ini tidak menghasilkan/memotong poin. Silakan cek ulang nominal.");
+
+            keranjangPoin.push({ aksi: aksi, item: item, amount: amt });
+            
+            document.getElementById('admin-input-nominal').value = '';
+            document.getElementById('estimasi-poin-teks').classList.add('hidden');
+            if(document.getElementById('admin-input-produk-khusus')) document.getElementById('admin-input-produk-khusus').selectedIndex = 0;
+            if(document.getElementById('admin-input-hadiah')) document.getElementById('admin-input-hadiah').selectedIndex = 0;
+
+            renderKeranjang();
+        }
+
+        function renderKeranjang() {
+            const list = document.getElementById('list-keranjang');
+            const totalEl = document.getElementById('total-perubahan-poin');
+            const btnCheckout = document.getElementById('btn-checkout');
+            
+            if(keranjangPoin.length === 0) {
+                list.innerHTML = '<li class="p-4 text-[11px] text-center text-slate-400 italic">Keranjang masih kosong.</li>';
+                totalEl.className = "text-lg font-bold text-slate-400";
+                totalEl.innerText = "0 Pts";
+                
+                btnCheckout.className = "w-full bg-slate-300 text-slate-500 py-4 rounded-xl font-bold text-sm shadow-sm transition";
+                btnCheckout.disabled = true;
+                return;
+            }
+            
+            list.innerHTML = '';
+            let total = 0;
+
+            keranjangPoin.forEach((k, index) => {
+                const color = k.aksi === 'tambah' ? 'text-emerald-500' : 'text-rose-500';
+                const sign = k.aksi === 'tambah' ? '+' : '-';
+                
+                if(k.aksi === 'tambah') total += k.amount;
+                else total -= k.amount;
+
+                list.innerHTML += `
+                    <li class="p-3 flex justify-between items-center text-[11px] hover:bg-slate-50 transition border-b border-slate-100 last:border-none">
+                        <div class="flex flex-col">
+                            <span class="font-bold text-slate-700">${k.item}</span>
+                            <span class="${color} font-bold">${sign}${k.amount} Pts</span>
+                        </div>
+                        <button onclick="hapusDariKeranjang(${index})" class="w-8 h-8 bg-rose-50 text-rose-500 rounded-lg flex items-center justify-center transition active:scale-90 hover:bg-rose-100"><i class="fa-solid fa-xmark"></i></button>
+                    </li>
+                `;
+            });
+
+            const signTotal = total >= 0 ? '+' : '';
+            totalEl.className = total >= 0 ? "text-lg font-bold text-emerald-600" : "text-lg font-bold text-rose-600";
+            totalEl.innerText = `${signTotal}${total} Pts`;
+            
+            btnCheckout.className = "w-full bg-slate-800 hover:bg-slate-900 text-white py-4 rounded-xl font-bold text-sm shadow-xl transition active:scale-95";
+            btnCheckout.disabled = false;
+        }
+
+        function hapusDariKeranjang(index) {
+            keranjangPoin.splice(index, 1);
+            renderKeranjang();
+        }
+
+        async function checkoutKeranjang() {
+            const id = document.getElementById('admin-input-id').value;
+            if(!id) return alert("Pastikan ID Member sudah terisi!");
+            if(keranjangPoin.length === 0) return alert("Keranjang kosong!");
+
+            const btn = document.getElementById('btn-checkout');
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> MEMPROSES...';
+            btn.disabled = true;
+
+            try {
+                const res = await fetch(URL_DATABASE, { 
+                    method: 'POST', 
+                    headers: HEADERS_POST, 
+                    redirect: 'follow', 
+                    body: JSON.stringify({ action: 'checkout_keranjang', id: id, keranjang: keranjangPoin }) 
+                });
+                const r = await res.json();
+                
+                if(r.status === 'success') { 
+                    alert("Berhasil Checkout!\nSisa Poin Member: " + r.poin_baru); 
+                    keranjangPoin = []; 
+                    renderKeranjang();
+                    fetchDaftarMember(); 
+                    document.getElementById('admin-input-id').value = ''; 
+                }
+                else if(r.status === 'kurang_poin') { 
+                    alert("Gagal!\nPoin member tidak cukup untuk melakukan penukaran. \nPoin saat ini: " + r.sisa); 
+                }
+                else {
+                    alert("Gagal memproses transaksi. Pastikan ID member benar.");
+                }
+            } catch(e) { 
+                alert("Error Server"); 
+            } finally {
+                btn.innerHTML = 'Proses Semua (Checkout)';
+                btn.disabled = keranjangPoin.length === 0;
+            }
+        }
+
+        async function simpanPengaturan(j) {
+            let body = { action: 'update_settings', jenis: j };
+            if(j === 'password') { body.username = document.getElementById('set-username').value; body.password = document.getElementById('set-password').value; }
+            else { body.rasio_nominal = document.getElementById('set-rasio-nominal').value; body.rasio_poin = document.getElementById('set-rasio-poin').value; }
+            try {
+                const res = await fetch(URL_DATABASE, { method: 'POST', headers: HEADERS_POST, redirect: 'follow', body: JSON.stringify(body) });
+                const r = await res.json();
+                if(r.status === 'success') {
+                    alert("Tersimpan!");
+                    if(j === 'rasio') {
+                        rasioNominalSistem = body.rasio_nominal;
+                        rasioPoinSistem = body.rasio_poin;
+                        syncLocalStorage();
+                    }
+                }
+            } catch(e) { alert("Error"); }
+        }
+
+        // --- CEK SESI SAAT HALAMAN DIBUKA / DI-REFRESH ---
+        window.addEventListener('DOMContentLoaded', () => {
+            if (localStorage.getItem('isLoggedIn') === 'true') {
+                const lastAct = parseInt(localStorage.getItem('lastActivity') || '0');
+                if (Date.now() - lastAct < IDLE_LIMIT) {
+                    const savedDataJSON = localStorage.getItem('adminData');
+                    if(savedDataJSON) {
+                        const savedData = JSON.parse(savedDataJSON);
+                        tampilkanDashboardLokal(savedData);
+                    }
+                } else {
+                    // Sesi expired (lebih dari 5 menit idle) saat tab ditutup lalu dibuka lagi
+                    logoutAdmin(false); 
+                }
+            }
+        });
+
+    </script>
+</body>
+</html>
