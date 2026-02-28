@@ -436,7 +436,6 @@
         }
         // ----------------------------------------------
 
-        // FITUR BARU: Menampilkan atau menyembunyikan password
         function togglePassword(inputId, iconId) {
             const input = document.getElementById(inputId);
             const icon = document.getElementById(iconId);
@@ -467,23 +466,31 @@
         }
 
         function switchTab(tab) {
+            // FITUR BARU: Bersihkan inputan saat beralih tab utama
+            if(document.getElementById('input-member-id')) document.getElementById('input-member-id').value = '';
+            if(document.getElementById('input-cetak-id')) document.getElementById('input-cetak-id').value = '';
+            if(document.getElementById('login-user')) document.getElementById('login-user').value = '';
+            if(document.getElementById('login-pass')) document.getElementById('login-pass').value = '';
+            
+            // Matikan semua kamera jika masih terbuka
+            stopScanner('reader');
+            stopScanner('reader-admin');
+            stopScanner('reader-edit-member');
+            stopScanner('reader-history');
+
             document.getElementById('form-member').classList.toggle('hidden', tab !== 'member');
             document.getElementById('form-kartu').classList.toggle('hidden', tab !== 'kartu');
             
             // JIKA TAB ADMIN DIKLIK
             if (tab === 'admin') {
-                // Mengecek status login
                 if (localStorage.getItem('isLoggedIn') === 'true') {
-                    // Jika SUDAH login: Sembunyikan form login, Tampilkan dashboard
                     document.getElementById('form-admin').classList.add('hidden');
                     document.getElementById('dashboard-admin').classList.remove('hidden');
                 } else {
-                    // Jika BELUM login: Tampilkan form login, Sembunyikan dashboard
                     document.getElementById('form-admin').classList.remove('hidden');
                     document.getElementById('dashboard-admin').classList.add('hidden');
                 }
             } else {
-                // Jika tab lain (member/kartu) diklik, sembunyikan semua elemen admin
                 document.getElementById('form-admin').classList.add('hidden');
                 document.getElementById('dashboard-admin').classList.add('hidden');
             }
@@ -500,6 +507,32 @@
         }
 
         function switchAdminMenu(menu) {
+            // FITUR BARU: Pembersihan form automatik semasa bertukar menu admin
+            if (document.getElementById('admin-input-id')) document.getElementById('admin-input-id').value = '';
+            if (document.getElementById('admin-input-nominal')) document.getElementById('admin-input-nominal').value = '';
+            if (document.getElementById('estimasi-poin-teks')) document.getElementById('estimasi-poin-teks').classList.add('hidden');
+            if (document.getElementById('search-riwayat-admin')) document.getElementById('search-riwayat-admin').value = '';
+            if (document.getElementById('search-hadiah')) document.getElementById('search-hadiah').value = '';
+            if (document.getElementById('set-username')) document.getElementById('set-username').value = '';
+            if (document.getElementById('set-password')) document.getElementById('set-password').value = '';
+            
+            // Mengembalikan butang pemilih (dropdown) ke asal
+            if (document.getElementById('metode-poin')) { 
+                document.getElementById('metode-poin').value = 'nominal'; 
+                gantiMetode(); 
+            }
+            if (document.getElementById('admin-input-produk-khusus')) document.getElementById('admin-input-produk-khusus').selectedIndex = 0;
+            if (document.getElementById('admin-input-hadiah')) document.getElementById('admin-input-hadiah').selectedIndex = 0;
+            
+            resetFormMember();
+            batalEditProduk();
+            batalEditHadiah();
+
+            // Memastikan kamera dimatikan jika menyala di menu sebelum ini
+            stopScanner('reader-admin');
+            stopScanner('reader-edit-member');
+            stopScanner('reader-history');
+
             const sections = ['poin', 'member', 'riwayat-admin', 'hadiah', 'atur-poin', 'pengaturan'];
             sections.forEach(s => document.getElementById(`admin-section-${s}`).classList.toggle('hidden', s !== menu));
             sections.forEach(s => {
@@ -657,7 +690,7 @@
         function resetFormMember() {
             document.getElementById('edit-member-id-asli').value = '';
             document.getElementById('reg-nama').value = ''; document.getElementById('reg-hp').value = ''; document.getElementById('reg-alamat').value = '';
-            document.getElementById('edit-search-member').value = '';
+            if(document.getElementById('edit-search-member')) document.getElementById('edit-search-member').value = '';
             document.getElementById('btn-member-group-add').classList.remove('hidden');
             document.getElementById('btn-member-group-edit').classList.add('hidden');
             document.getElementById('btn-member-cancel').classList.add('hidden');
@@ -858,12 +891,14 @@
         }
 
         function batalEditProduk() {
-            document.getElementById('edit-produk-lama').value = ''; 
-            document.getElementById('add-nama-produk').value = ''; 
-            document.getElementById('add-poin-produk').value = '';
-            document.getElementById('btn-cancel-produk').classList.add('hidden'); 
-            document.getElementById('btn-add-produk').innerText = "Simpan Produk";
-            document.getElementById('btn-add-produk').classList.replace('bg-amber-500', 'bg-blue-500');
+            if(document.getElementById('edit-produk-lama')) document.getElementById('edit-produk-lama').value = ''; 
+            if(document.getElementById('add-nama-produk')) document.getElementById('add-nama-produk').value = ''; 
+            if(document.getElementById('add-poin-produk')) document.getElementById('add-poin-produk').value = '';
+            if(document.getElementById('btn-cancel-produk')) document.getElementById('btn-cancel-produk').classList.add('hidden'); 
+            if(document.getElementById('btn-add-produk')) {
+                document.getElementById('btn-add-produk').innerText = "Simpan Produk";
+                document.getElementById('btn-add-produk').classList.replace('bg-amber-500', 'bg-blue-500');
+            }
         }
 
         async function hapusProduk(n) {
@@ -911,8 +946,11 @@
         }
 
         function batalEditHadiah() {
-            document.getElementById('edit-hadiah-lama').value = ''; document.getElementById('add-nama-hadiah').value = ''; document.getElementById('add-poin-hadiah').value = '';
-            document.getElementById('btn-cancel-hadiah').classList.add('hidden'); document.getElementById('btn-add-hadiah').innerText = "Simpan Katalog Hadiah";
+            if(document.getElementById('edit-hadiah-lama')) document.getElementById('edit-hadiah-lama').value = ''; 
+            if(document.getElementById('add-nama-hadiah')) document.getElementById('add-nama-hadiah').value = ''; 
+            if(document.getElementById('add-poin-hadiah')) document.getElementById('add-poin-hadiah').value = '';
+            if(document.getElementById('btn-cancel-hadiah')) document.getElementById('btn-cancel-hadiah').classList.add('hidden'); 
+            if(document.getElementById('btn-add-hadiah')) document.getElementById('btn-add-hadiah').innerText = "Simpan Katalog Hadiah";
         }
 
         async function hapusHadiah(n) {
@@ -1197,7 +1235,7 @@
         }
 
         // =========================================================
-        // LOGIKA KERANJANG
+        // LOGIKA KERANJANG BARU (DENGAN QTY + DAN -)
         // =========================================================
 
         function tambahKeKeranjang() {
@@ -1227,7 +1265,17 @@
 
             if(amt <= 0) return alert("Nilai transaksi ini tidak menghasilkan/memotong poin. Silakan cek ulang nominal.");
 
-            keranjangPoin.push({ aksi: aksi, item: item, amount: amt });
+            // Cek apakah item ini sudah ada di dalam keranjang
+            const existingIndex = keranjangPoin.findIndex(k => k.item === item && k.aksi === aksi && k.base_amount === amt);
+            
+            if (existingIndex > -1) {
+                // Jika sudah ada, tinggal tambahkan qty-nya
+                keranjangPoin[existingIndex].qty += 1;
+                keranjangPoin[existingIndex].amount = keranjangPoin[existingIndex].qty * keranjangPoin[existingIndex].base_amount;
+            } else {
+                // Jika belum ada, buat entri baru
+                keranjangPoin.push({ aksi: aksi, item: item, base_amount: amt, qty: 1, amount: amt });
+            }
             
             document.getElementById('admin-input-nominal').value = '';
             document.getElementById('estimasi-poin-teks').classList.add('hidden');
@@ -1235,6 +1283,19 @@
             if(document.getElementById('admin-input-hadiah')) document.getElementById('admin-input-hadiah').selectedIndex = 0;
 
             renderKeranjang();
+        }
+
+        function ubahQtyKeranjang(index, delta) {
+            keranjangPoin[index].qty += delta;
+            
+            if (keranjangPoin[index].qty <= 0) {
+                // Jika qty menjadi 0 atau kurang, otomatis hapus dari keranjang
+                hapusDariKeranjang(index);
+            } else {
+                // Kalkulasi ulang total poin berdasarkan qty baru
+                keranjangPoin[index].amount = keranjangPoin[index].qty * keranjangPoin[index].base_amount;
+                renderKeranjang();
+            }
         }
 
         function renderKeranjang() {
@@ -1262,13 +1323,21 @@
                 if(k.aksi === 'tambah') total += k.amount;
                 else total -= k.amount;
 
+                // Memastikan nilai default qty adalah 1 jika terjadi bug
+                const qtyDisplay = k.qty || 1;
+
                 list.innerHTML += `
                     <li class="p-3 flex justify-between items-center text-[11px] hover:bg-slate-50 transition border-b border-slate-100 last:border-none">
-                        <div class="flex flex-col">
+                        <div class="flex flex-col flex-1 pr-2">
                             <span class="font-bold text-slate-700">${k.item}</span>
                             <span class="${color} font-bold">${sign}${k.amount} Pts</span>
                         </div>
-                        <button onclick="hapusDariKeranjang(${index})" class="w-8 h-8 bg-rose-50 text-rose-500 rounded-lg flex items-center justify-center transition active:scale-90 hover:bg-rose-100"><i class="fa-solid fa-xmark"></i></button>
+                        
+                        <div class="flex items-center gap-2">
+                            <button onclick="ubahQtyKeranjang(${index}, -1)" class="w-8 h-8 bg-slate-100 text-slate-600 rounded-lg flex items-center justify-center transition active:scale-90 hover:bg-rose-100 hover:text-rose-600"><i class="fa-solid fa-minus text-[10px]"></i></button>
+                            <span class="font-bold text-slate-700 w-4 text-center text-sm">${qtyDisplay}</span>
+                            <button onclick="ubahQtyKeranjang(${index}, 1)" class="w-8 h-8 bg-slate-100 text-slate-600 rounded-lg flex items-center justify-center transition active:scale-90 hover:bg-emerald-100 hover:text-emerald-600"><i class="fa-solid fa-plus text-[10px]"></i></button>
+                        </div>
                     </li>
                 `;
             });
@@ -1296,11 +1365,17 @@
             btn.disabled = true;
 
             try {
+                const payloadKeranjang = keranjangPoin.map(k => ({
+                    aksi: k.aksi,
+                    item: (k.qty && k.qty > 1) ? `${k.item} (x${k.qty})` : k.item,
+                    amount: k.amount
+                }));
+
                 const res = await fetch(URL_DATABASE, { 
                     method: 'POST', 
                     headers: HEADERS_POST, 
                     redirect: 'follow', 
-                    body: JSON.stringify({ action: 'checkout_keranjang', id: id, keranjang: keranjangPoin }) 
+                    body: JSON.stringify({ action: 'checkout_keranjang', id: id, keranjang: payloadKeranjang }) 
                 });
                 const r = await res.json();
                 
