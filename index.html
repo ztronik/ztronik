@@ -945,7 +945,11 @@
         async function daftarMemberBaru() {
             const n = document.getElementById('reg-nama').value, hp = document.getElementById('reg-hp').value, alm = document.getElementById('reg-alamat').value;
             if(!n || !hp) return alert("Isi Nama/HP!");
-            const id = Math.floor(1000000 + Math.random() * 9000000).toString();
+            
+            // --- BAGIAN YANG DIUBAH (ID 12 Digit Angka Acak) ---
+            const id = Math.floor(100000000000 + Math.random() * 900000000000).toString();
+            // ----------------------------------------------------
+
             try {
                 const res = await fetch(URL_DATABASE, { method: 'POST', headers: HEADERS_POST, redirect: 'follow', body: JSON.stringify({ action: 'register', id: id, nama: n, hp: hp, alamat: alm }) });
                 const r = await res.json();
