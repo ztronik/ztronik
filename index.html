@@ -39,7 +39,7 @@
 
         <div id="dashboard-admin" class="hidden transition-all duration-300 text-left">
             <div class="flex justify-between items-center mb-4 px-1">
-                <h3 class="font-bold text-slate-800 text-lg">Z-TRONIK Dashboard</h3>
+                <h3 class="font-bold text-slate-800 text-lg">Dashboard</h3>
                 <button onclick="logoutAdmin(true)" class="text-xs text-red-500 font-bold hover:text-red-600 flex items-center gap-1"><i class="fa-solid fa-power-off"></i> Logout</button>
             </div>
 
@@ -304,7 +304,7 @@
         </div>
 
         <div id="form-admin" class="hidden transition-all duration-300">
-            <p class="text-sm text-slate-500 mb-3">Login Admin Z-TRONIK</p>
+            <p class="text-sm text-slate-500 mb-3">Login Admin</p>
             <input type="text" id="login-user" placeholder="Username" class="w-full px-4 py-3.5 bg-white border border-slate-200 rounded-xl text-sm mb-3 focus:outline-none">
             
             <div class="relative mb-6">
@@ -987,13 +987,8 @@
             // Panggil switchTab LEBIH DULU agar class default dirender
             switchTab('admin'); 
 
-            // KEMUDIAN sembunyikan dengan inline style agar tidak terhapus
-            document.getElementById('tab-member').style.display = 'none';
-            document.getElementById('tab-kartu').style.display = 'none';
-            
-            const tabContainer = document.getElementById('tab-container');
-            tabContainer.classList.remove('grid-cols-3');
-            tabContainer.classList.add('grid-cols-1');
+            // Hapus atau sembunyikan seluruh tab-container agar ketiga menu hilang saat login
+            document.getElementById('tab-container').classList.add('hidden');
         }
 
         async function loginAdmin() {
